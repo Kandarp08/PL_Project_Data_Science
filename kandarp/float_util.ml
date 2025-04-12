@@ -1,12 +1,12 @@
-module type UTIL = 
+module type FLOAT_UTIL = 
 sig
-    val sum : (int list) -> int
-    val len : (int list) -> int
-    val mean : (int list) -> float
-    val stddev : (int list) -> float
+    val sum : (float list) -> float
+    val len : (float list) -> int
+    val mean : (float list) -> float
+    val stddev : (float list) -> float
 end
 
-module Util : UTIL = 
+module Float_Util : FLOAT_UTIL = 
 struct
 
     let sum l = 
@@ -14,9 +14,9 @@ struct
         let rec aux l curr_sum = 
             match l with 
             [] -> curr_sum
-            | h :: t -> aux t (curr_sum + h) in
+            | h :: t -> aux t (curr_sum +. h) in
             
-        aux l 0
+        aux l 0.
         
     let len l = 
 
@@ -29,7 +29,7 @@ struct
 
     let mean l = 
 
-        let float_sum = float_of_int (sum l) and 
+        let float_sum = sum l and 
         float_len = float_of_int (len l) in
 
         float_sum /. float_len
@@ -39,8 +39,8 @@ struct
         let rec sum_of_squares l mean curr_sum = 
             match l with 
             [] -> curr_sum
-            | h :: t -> sum_of_squares t mean (curr_sum +. (((float_of_int h) -. mean) *. 
-                                                            ((float_of_int h) -. mean))) in
+            | h :: t -> sum_of_squares t mean (curr_sum +. ((h -. mean) *. 
+                                                            (h -. mean))) in
 
         let length = float_of_int (len l) and
         avg =  mean l in
