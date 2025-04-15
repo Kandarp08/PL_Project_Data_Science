@@ -1,50 +1,53 @@
+(* Utility functions to work with float sequences *)
 module type FLOAT_UTIL = 
 sig
-    val sum : (float Seq.node) -> float
-    val len : (float Seq.node) -> int
-    val mean : (float Seq.node) -> float
-    val stddev : (float Seq.node) -> float
+    val sum : (float Seq.t) -> float
+    val len : (float Seq.t) -> int
+    val mean : (float Seq.t) -> float
+    val stddev : (float Seq.t) -> float
 end
 
 module Float_Util : FLOAT_UTIL = 
 struct
 
-    let sum node = 
+    let sum seq = 
         
-        let rec aux node curr_sum = 
-            match node with 
-            Seq.Nil -> curr_sum
-            | Cons(h, t) -> aux (t ()) (curr_sum +. h) in
+        (* Helper function *)
+        let rec aux seq = 
+            match seq () with 
+            Seq.Nil -> 0.
+            | Seq.Cons(h, t) -> h +. (aux t) in
             
-        aux node 0.
+        aux seq
         
-    let len node = 
+    let len seq = 
 
-        let rec aux node curr_len = 
-            match node with
-            Seq.Nil -> curr_len
-            | Cons(h, t) -> aux (t ()) (curr_len + 1) in
+        (* Helper function *)
+        let rec aux seq = 
+            match seq () with
+            Seq.Nil -> 0
+            | Seq.Cons(h, t) -> 1 + (aux t)in
 
-        aux node 0
+        aux seq
 
-    let mean node = 
+    let mean seq = 
 
-        let float_sum = sum node and 
-        float_len = float_of_int (len node) in
+        let float_sum = sum seq and           (* Sum of sequence *)
+        float_len = float_of_int (len seq) in (* Length of sequence *)
 
         float_sum /. float_len
 
-    let stddev node =
+    let stddev seq =
 
-        let rec sum_of_squares node mean curr_sum = 
-            match node with 
-            Seq.Nil -> curr_sum
-            | Cons(h, t) -> sum_of_squares (t ()) mean (curr_sum +. ((h -. mean) *. 
-                                                            (h -. mean))) in
+        (* Find summation of (x - mean) ^ 2 *)
+        let rec sum_of_squares seq mean = 
+            match seq () with 
+            Seq.Nil -> 0.
+            | Seq.Cons(h, t) -> ((h -. mean) *. (h -. mean)) +. sum_of_squares t mean in
 
-        let length = float_of_int (len node) and
-        avg =  mean node in
-        let float_sum_of_squares = sum_of_squares node avg 0. in
+        let length = float_of_int (len seq) and
+        avg =  mean seq in
+        let float_sum_of_squares = sum_of_squares seq avg in
         
         float_sum_of_squares /. length
 end

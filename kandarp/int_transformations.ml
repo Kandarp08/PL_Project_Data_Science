@@ -1,15 +1,17 @@
+(* Common transformations that can be applied on a column *)
 module type INT_TRANSFORMATIONS = 
 sig
-    val normalize : (int Seq.node) -> (float Seq.t)
+    val normalize : (int Seq.t) -> (float Seq.t)
 end
 
 module Int_Transformations : INT_TRANSFORMATIONS = 
 struct
     
-    let normalize node = 
+    let normalize seq = 
 
-        let mean = Int_Util.mean node and
-        stddev = Int_Util.stddev node in
+        let mean = Int_Util.mean seq and (* Mean of sequence *)
+        stddev = Int_Util.stddev seq in  (* Standard deviation of sequence *)
 
-        Operations.map (fun x -> ((float_of_int x) -. mean) /. stddev) node
+        (* Use the map function to carry out normalization *)
+        Operations.map (fun x -> ((float_of_int x) -. mean) /. stddev) seq
 end

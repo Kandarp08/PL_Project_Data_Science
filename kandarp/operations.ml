@@ -1,37 +1,32 @@
 (* Contains the signatures of core data operations *)
 module type OPERATIONS = 
 sig
-    val map : ('a -> 'b) -> 'a Seq.node -> 'b Seq.t
-    val filter : ('a -> bool) -> 'a Seq.node -> 'a Seq.t
-
-    (* Rest of the functions can also be added here *)
-
+    val map : ('a -> 'b) -> 'a Seq.t -> 'b Seq.t
+    val filter : ('a -> bool) -> 'a Seq.t -> 'a Seq.t
 end
 
 (* Module that implements the core data operations *)
 module Operations : OPERATIONS =
 struct
     
-    (* Applies the function f on all values of the sequence *)
-    let map f node = 
+    let map f seq = 
 
         (* Helper function *)
-        let rec aux f node acc = 
-            match node with
-            Seq.Nil -> acc
-            | Cons(h, t) -> aux (f) (t ()) (Seq.append acc (Seq.return (f h))) in
+        let rec aux seq = 
+            match seq () with
+            Seq.Nil -> Seq.Nil
+            | Seq.Cons(h, t) -> Seq.Cons(f h, fun () -> (aux t)) in
 
-        aux f node (fun () -> Seq.Nil)
+        fun () -> aux seq
     
-    (* Filters elements e from a sequence such that (f e) = true *)
-    let filter f node = 
+    let filter f seq = 
 
         (* Helper function *)
-        let rec aux f node acc = 
-            match node with
-            Seq.Nil -> acc
-            | Cons(h, t) -> if ((f h) = true) then (aux (f) (t ()) (Seq.append acc (Seq.return h)))
-                            else (aux (f) (t ()) acc) in
+        let rec aux seq = 
+            match seq () with
+            Seq.Nil -> Seq.Nil
+            | Seq.Cons(h, t) -> if ((f h) = true) then Seq.Cons(h, fun () -> (aux t))
+                                else (aux t) in
                         
-        aux f node (fun () -> Seq.Nil)
+        fun () -> aux seq
 end
