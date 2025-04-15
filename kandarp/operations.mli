@@ -7,4 +7,10 @@ sig
 
     (* Filter elements of a sequence which satisfy a particular function *)
     val filter : ('a -> bool) -> 'a Seq.t -> 'a Seq.t
+
+    (* Update value of accumulator value by repeatedly applying a function *)
+    val fold_left : ('a -> 'b -> 'a) -> 'a -> 'b Seq.t -> 'a
+
+    (* Find whether an element exists in a sequence or not *)
+    val mem : 'a -> 'a Seq.t -> bool
 end

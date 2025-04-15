@@ -3,6 +3,8 @@ module type OPERATIONS =
 sig
     val map : ('a -> 'b) -> 'a Seq.t -> 'b Seq.t
     val filter : ('a -> bool) -> 'a Seq.t -> 'a Seq.t
+    val fold_left : ('a -> 'b -> 'a) -> 'a -> 'b Seq.t -> 'a
+    val mem : 'a -> 'a Seq.t -> bool
 end
 
 (* Module that implements the core data operations *)
@@ -29,4 +31,16 @@ struct
                                 else (aux t) in
                         
         fun () -> aux seq
+
+    let rec fold_left f acc seq =
+
+        match seq () with
+        Seq.Nil -> acc
+        | Seq.Cons(h, t) -> fold_left f (f acc h) t
+
+    let rec mem el seq = 
+
+        match seq () with
+        Seq.Nil -> false
+        | Seq.Cons(h, t) -> if (h = el) then true else mem el t
 end
