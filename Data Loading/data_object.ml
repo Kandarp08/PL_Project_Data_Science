@@ -9,9 +9,10 @@ type data_object =
 | INT_DATA of int
 | NULL
 
+
+(* Some functions for the data_object variant *)
 module DataObject = struct 
   type t = data_object
-
   let bool_data_from_string data = 
     match String.lowercase_ascii data with
       "1"

@@ -1,5 +1,7 @@
 open Datatypes
 
+
+(* Reprsentation of a data element*)
 type data_object = 
   STRING_DATA of string 
 | FLOAT_DATA of float
