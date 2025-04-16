@@ -4,6 +4,7 @@ sig
     val map : ('a -> 'b) -> 'a Seq.t -> 'b Seq.t
     val filter : ('a -> bool) -> 'a Seq.t -> 'a Seq.t
     val fold_left : ('a -> 'b -> 'a) -> 'a -> 'b Seq.t -> 'a
+    val fold_right: ('a -> 'b -> 'b) -> 'a Seq.t -> 'b -> 'b
     val mem : 'a -> 'a Seq.t -> bool
 end
 
@@ -37,6 +38,12 @@ struct
         match seq () with
         Seq.Nil -> acc
         | Seq.Cons(h, t) -> fold_left f (f acc h) t
+
+    let rec fold_right f seq acc = 
+
+        match seq () with 
+        Seq.Nil -> acc
+        | Seq.Cons(h, t) -> fold_right f t (f h acc)
 
     let rec mem el seq = 
 

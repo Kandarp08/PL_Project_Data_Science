@@ -10,6 +10,9 @@ sig
 
     (* Update value of accumulator value by repeatedly applying a function *)
     val fold_left : ('a -> 'b -> 'a) -> 'a -> 'b Seq.t -> 'a
+    
+    (* Update value of accumulator value by repeatedly applying a function *)
+    val fold_right: ('a -> 'b -> 'b) -> 'a Seq.t -> 'b -> 'b
 
     (* Find whether an element exists in a sequence or not *)
     val mem : 'a -> 'a Seq.t -> bool
