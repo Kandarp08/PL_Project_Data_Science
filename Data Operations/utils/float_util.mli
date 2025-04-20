@@ -14,3 +14,5 @@ sig
     (* Standard deviation of a sequence *)
     val stddev : (float Seq.t) -> float
 end
+
+module Float_util : FLOAT_UTIL

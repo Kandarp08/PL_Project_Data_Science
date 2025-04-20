@@ -3,3 +3,5 @@ module type INT_TRANSFORMATIONS =
 sig
     val normalize : (int Seq.t) -> (float Seq.t)
 end
+
+module Int_transformations : INT_TRANSFORMATIONS

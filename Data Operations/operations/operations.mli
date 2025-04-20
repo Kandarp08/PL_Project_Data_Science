@@ -17,3 +17,5 @@ sig
     (* Find whether an element exists in a sequence or not *)
     val mem : 'a -> 'a Seq.t -> bool
 end
+
+module Operations : OPERATIONS

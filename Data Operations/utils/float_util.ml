@@ -7,7 +7,7 @@ sig
     val stddev : (float Seq.t) -> float
 end
 
-module Float_Util : FLOAT_UTIL = 
+module Float_util : FLOAT_UTIL = 
 struct
 
     let sum seq = 
