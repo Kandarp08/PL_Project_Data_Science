@@ -3,7 +3,7 @@ DATA_OPERATIONS_PATH = Data_Operations
 
 OCAMLC = ocamlc
 OCAMLFLAGS = -I $(DATA_LOADING_PATH) \
-			 -I $(DATA_OPERATIONS_PATH)/ \
+			 -I $(DATA_OPERATIONS_PATH) \
 			 -I $(DATA_OPERATIONS_PATH)/utils -I $(DATA_OPERATIONS_PATH)/operations \
 			 -I $(DATA_OPERATIONS_PATH)/transformations
 
@@ -25,7 +25,7 @@ MAIN = main
 # Lists of modules
 MLI_MODULES = \
 $(DATA_LOADING_UTILS:=.mli) $(DATATYPES:=.mli) $(DATAOBJECT:=.mli) $(ROW:=.mli) $(DATAFRAME:=.mli) \
-$(UTILS:=.mli) $(OPERATIONS:=.mli) $(TRANSFORM:=.mli) $(LIB:=.mli) 
+$(UTILS:=.mli) $(OPERATIONS:=.mli) $(TRANSFORM:=.mli) $(LIB:=.mli) $(MAIN:=.mli)
 
 ML_MODULES = \
 $(DATA_LOADING_UTILS:=.ml) $(DATATYPES:=.ml) $(DATAOBJECT:=.ml) $(ROW:=.ml) $(DATAFRAME:=.ml) \
@@ -45,6 +45,7 @@ CMOS = \
 	$(DATA_OPERATIONS_PATH)/transformations/int_transformations.cmo \
 	$(DATA_OPERATIONS_PATH)/transformations/float_transformations.cmo \
 	$(DATA_OPERATIONS_PATH)/lib.cmo \
+	$(MAIN).cmo
 
 TARGET = main.exe
 
