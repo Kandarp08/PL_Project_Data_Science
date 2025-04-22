@@ -25,11 +25,11 @@ MAIN = main
 # Lists of modules
 MLI_MODULES = \
 $(DATA_LOADING_UTILS:=.mli) $(DATATYPES:=.mli) $(DATAOBJECT:=.mli) $(ROW:=.mli) $(DATAFRAME:=.mli) \
-$(UTILS:=.mli) $(OPERATIONS:=.mli) $(TRANSFORM:=.mli) $(LIB:=.mli) $(MAIN:=.mli)
+$(OPERATIONS:=.mli) $(UTILS:=.mli) $(TRANSFORM:=.mli) $(LIB:=.mli) $(MAIN:=.mli)
 
 ML_MODULES = \
 $(DATA_LOADING_UTILS:=.ml) $(DATATYPES:=.ml) $(DATAOBJECT:=.ml) $(ROW:=.ml) $(DATAFRAME:=.ml) \
-$(UTILS:=.ml) $(OPERATIONS:=.ml) $(TRANSFORM:=.ml) $(LIB:=.ml) $(MAIN:=.ml)
+$(OPERATIONS:=.ml) $(UTILS:=.ml) $(TRANSFORM:=.ml) $(LIB:=.ml) $(MAIN:=.ml)
 
 CMIS = $(MLI_MODULES:.mli=.cmi)
 
@@ -39,9 +39,9 @@ CMOS = \
 	$(DATA_LOADING_PATH)/data_object.cmo \
 	$(DATA_LOADING_PATH)/row.cmo \
 	$(DATA_LOADING_PATH)/dataframe.cmo \
+	$(DATA_OPERATIONS_PATH)/operations/operations.cmo \
 	$(DATA_OPERATIONS_PATH)/utils/int_util.cmo \
 	$(DATA_OPERATIONS_PATH)/utils/float_util.cmo \
-	$(DATA_OPERATIONS_PATH)/operations/operations.cmo \
 	$(DATA_OPERATIONS_PATH)/transformations/int_transformations.cmo \
 	$(DATA_OPERATIONS_PATH)/transformations/float_transformations.cmo \
 	$(DATA_OPERATIONS_PATH)/lib.cmo \
