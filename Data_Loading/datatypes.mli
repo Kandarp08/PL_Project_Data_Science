@@ -8,5 +8,8 @@ type datatype =
 | BOOL
 | CHAR
 
-(** Convert a string representation to a datatype *)
-val string_to_datatype : string -> datatype
+(** Helper functions to work with datatype *)
+module Datatype : sig
+  type t = datatype
+  val string_to_datatype : string -> datatype
+end

@@ -1,6 +1,7 @@
 open Data_object
 open Datatypes
 open Row
+open Utils
 
 (** Dataframe type and operations *)
 
@@ -20,6 +21,15 @@ module Dataframe : sig
   (** Get a column by name as a sequence of data objects *)
   val get_column : dataframe -> string -> data_object Seq.t
 
+  (** Load a dataframe from a file *)
+  val load_from_file : string -> string ->dataframe
+
   (** Load a dataframe from a CSV file *)
   val load_from_csv : string -> dataframe
+
+  (** Load a dataframe from a CSV file with tab as a separator *)
+  val load_from_tsv : string -> dataframe
+
+  (** Load a dataframe from a JSON file *)
+  val load_from_json : string -> dataframe
 end

@@ -40,7 +40,7 @@ module Dataframe = struct
         let line2 = input_line file in
         let dtypes = String.split_on_char ',' line2 in
         if (List.length dtypes) != ncols then failwith "Datatypes were not provided for some columns"
-        else List.map string_to_datatype dtypes
+        else List.map Datatype.string_to_datatype dtypes
       with End_of_file -> 
         close_in file;
         failwith "No datatypes provided for columns" in
@@ -62,4 +62,20 @@ module Dataframe = struct
 
     let load_from_csv = load_from_file ","
     let load_from_tsv = load_from_file "\t"
+
+    (* let load_from_json filepath = 
+      let file = open_in filepath in
+      let rec iter acc = 
+      try
+        let line = input_line file in
+        iter (acc ^ line)
+      with End_of_file -> 
+        close_in file;
+        acc in
+      let json_string = iter "" in
+      let (_, json_obj) = JSON.parse_object json_string 0 in
+      json_obj *)
+
+    (* TODO *)
+    let load_from_json = load_from_file " "
 end

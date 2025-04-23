@@ -7,7 +7,7 @@ main.cmo: main.ml dataframe.cmi row.cmi data_object.cmi utils.cmi datatypes.cmi
 dataframe.cmo: dataframe.ml dataframe.cmi row.cmi utils.cmi data_object.cmi datatypes.cmi
 	ocamlc -c dataframe.ml
 
-dataframe.cmi: dataframe.mli row.cmi datatypes.cmi data_object.cmi
+dataframe.cmi: dataframe.mli row.cmi datatypes.cmi data_object.cmi utils.cmi
 	ocamlc -c dataframe.mli
 
 row.cmo: row.ml row.cmi data_object.cmi datatypes.cmi
