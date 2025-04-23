@@ -1,5 +1,3 @@
-let split_by_comma = String.split_on_char ','
-
 let strip str = 
   let trimmed = String.trim str in
   let l = String.length trimmed in

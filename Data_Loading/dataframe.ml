@@ -25,12 +25,12 @@ module Dataframe = struct
     let col_index = get_column_index df colname in
     Seq.map (fun row -> List.nth row col_index) df.rows 
 
-  let load_from_csv filepath = 
+  let load_from_file sep filepath = 
     let file = open_in filepath in
     let headers = 
       try
         let line1 = input_line file in
-        List.map strip (split_by_comma line1)
+        List.map strip (String.split_on_char ',' line1)
       with End_of_file -> 
         close_in file;
         failwith "No column names" in
@@ -38,7 +38,7 @@ module Dataframe = struct
     let types = 
       try
         let line2 = input_line file in
-        let dtypes = split_by_comma line2 in
+        let dtypes = String.split_on_char ',' line2 in
         if (List.length dtypes) != ncols then failwith "Datatypes were not provided for some columns"
         else List.map string_to_datatype dtypes
       with End_of_file -> 
@@ -47,7 +47,7 @@ module Dataframe = struct
     let rec readlines () = 
       try
         let line = input_line file in
-        let data = split_by_comma line in
+        let data = String.split_on_char ',' line in
         let row = Row.row_from_list data ncols types in
         Seq.Cons (row, readlines);
       with End_of_file -> 
@@ -59,4 +59,7 @@ module Dataframe = struct
       rows = Seq.memoize readlines;
       ncols = ncols;
     }
+
+    let load_from_csv = load_from_file ","
+    let load_from_tsv = load_from_file "\t"
 end
