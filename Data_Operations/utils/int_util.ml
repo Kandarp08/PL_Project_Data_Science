@@ -63,5 +63,5 @@ struct
         avg =  mean seq in
         let float_sum_of_squares = sum_of_squares int_seq avg in 
         
-        float_sum_of_squares /. length
+        Float.sqrt (float_sum_of_squares /. length)
 end

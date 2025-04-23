@@ -12,6 +12,7 @@ open Float_transformations
 module type LIB =
 sig
     val map : Dataframe.t -> (data_object -> data_object) -> string -> Dataframe.t
+    val normalize : Dataframe.t -> string -> Dataframe.t
 end
 
 module Lib : LIB = 
@@ -47,4 +48,19 @@ struct
         let new_df = { df with rows = fun () -> convert col_idx mapped_column column df.rows} in
         
         new_df
+
+    let normalize df col_name = 
+
+        let col_idx = Dataframe.get_column_index df col_name in
+        let column = Dataframe.get_column df col_name in  
+        let datatype = List.nth df.dtypes col_idx in 
+
+        let transformed_column = match datatype with
+                                | INT -> Int_transformations.normalize column 
+                                | FLOAT -> Float_transformations.normalize column
+                                | _ -> failwith "Inappropriate data type for normalization" in
+
+        let new_df = { df with rows = fun () -> convert col_idx transformed_column column df.rows} in
+        
+        new_df                
 end

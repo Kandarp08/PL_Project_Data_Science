@@ -12,6 +12,7 @@ open Float_transformations
 module type LIB =
 sig
     val map : Dataframe.t -> (data_object -> data_object) -> string -> Dataframe.t
+    val normalize : Dataframe.t -> string -> Dataframe.t
 end
 
 module Lib : LIB
