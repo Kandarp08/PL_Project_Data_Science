@@ -1,5 +1,6 @@
 open Data_object
 open Datatypes
+open Utils
 
 (** Operations on rows (lists of data objects) *)
 module Row : sig
@@ -8,6 +9,12 @@ module Row : sig
   (** Display a row to standard output *)
   val display_row : t -> unit
 
+  (** Create a row from a list *)
+  val row_from_list : ('a -> 'b -> Data_object.data_object) -> 'a list -> int -> 'b list -> t
+
   (** Create a row from a list of strings, applying the appropriate datatypes *)
-  val row_from_list : string list -> int -> datatype list -> t
+  val row_from_string_list : datatype list -> int -> string list -> t
+
+  (** Create a row from a list of strings, applying the appropriate datatypes *)
+  val row_from_json_value_list : datatype list -> int -> json_value list -> t
 end
