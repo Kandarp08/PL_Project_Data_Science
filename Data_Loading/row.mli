@@ -10,7 +10,7 @@ module Row : sig
   val display_row : t -> unit
 
   (** Create a row from a list *)
-  val row_from_list : ('a -> 'b -> Data_object.data_object) -> 'a list -> int -> 'b list -> t
+  val row_from_list : (datatype -> 'b -> Data_object.data_object) -> datatype list -> int -> 'b list -> t
 
   (** Create a row from a list of strings, applying the appropriate datatypes *)
   val row_from_string_list : datatype list -> int -> string list -> t
