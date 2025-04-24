@@ -43,4 +43,20 @@ module DataObject = struct
       | BOOL -> bool_data_from_string sdata
     with
       _ -> NULL
+
+  let from_json_value dtype jval  = 
+    try
+      match jval with 
+        STRING_VAL (str) -> 
+          if dtype = STRING then STRING_DATA (str)
+          else if dtype = CHAR then CHAR_DATA (str.[0])
+          else failwith "Invalid value for the given datatype"
+      | NUMBER (n) -> 
+        if dtype = FLOAT then FLOAT_DATA (float_of_string n)
+        else if dtype = INT then INT_DATA (int_of_string n)
+        else failwith "Invalid value for the given datatype"
+      | BOOLEAN_VAL (b) -> if dtype = BOOL then BOOL_DATA (b) else failwith "Invalid value for the given datatype"
+      | _ -> NULL
+    with
+      _ -> NULL
 end

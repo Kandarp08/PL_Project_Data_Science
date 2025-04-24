@@ -8,11 +8,11 @@ let strip str =
     else trimmed
 
 
-type json_object = (string * value) list
+type json_object = (string * json_value) list
 and 
-value = 
+json_value = 
   OBJECT of json_object
-| ARRAY of value list
+| ARRAY of json_value list
 | STRING_VAL of string
 | NUMBER of string
 | BOOLEAN_VAL of bool
@@ -188,8 +188,30 @@ module JSON = struct
       iter str (i+1) []
 
   let parse str = 
-    let (_, value) = parse_value str 0 in
-    match value with
+    let (_, v) = parse_value str 0 in
+    match v with
     | OBJECT obj -> obj
     | _ -> failwith "Expected JSON object at top level"
+
+  let get_value obj key = 
+    let l = List.length obj in
+    let rec iter i = 
+      if i >= l then failwith "Key not found"
+      else
+        let (k, v) = List.nth obj i in
+        if k = key then v
+        else iter (i+1) in
+    iter 0
+end
+
+module JSON_Value = struct 
+  let string_value_to_string v = 
+    match v with 
+      STRING_VAL (str) -> str
+    | _ -> failwith "Not a string"
+
+  let array_to_list v = 
+    match v with
+      ARRAY (a) -> a
+    | _ -> failwith "Not an array"
 end

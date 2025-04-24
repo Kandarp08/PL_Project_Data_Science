@@ -1,4 +1,5 @@
 open Datatypes
+open Utils
 
 
 (* Reprsentation of a data element*)
@@ -22,4 +23,7 @@ module DataObject : sig
 
   (** Convert a string to a data object of the specified type *)
   val from_string : datatype -> string -> data_object
+
+  (** Convert a json_value to a data object of the specified type *)
+  val from_json_value : datatype -> json_value -> data_object
 end
