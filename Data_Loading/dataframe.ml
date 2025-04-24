@@ -25,6 +25,12 @@ module Dataframe = struct
     let col_index = get_column_index df colname in
     Seq.map (fun row -> List.nth row col_index) df.rows 
 
+  let no_of_rows df = Seq.fold_left (fun acc _ -> acc + 1) 0 df.rows
+
+  let size df = df.ncols * no_of_rows df
+
+  let shape df = (df.ncols, no_of_rows df)
+
   let load_from_file sep filepath = 
     let file = open_in filepath in
     let headers = 

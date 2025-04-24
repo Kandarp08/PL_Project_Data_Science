@@ -21,6 +21,15 @@ module Dataframe : sig
   (** Get a column by name as a sequence of data objects *)
   val get_column : dataframe -> string -> data_object Seq.t
 
+  (** Number of rows in the dataframe *)
+  val no_of_rows : dataframe -> int
+
+  (** Size of the dataframe: #rows x #cols *)
+  val size : dataframe -> int
+
+  (** Shape of the dataframe: (#rows, #cols) *)
+  val shape : dataframe -> int * int
+
   (** Load a dataframe from a file *)
   val load_from_file : string -> string ->dataframe
 
