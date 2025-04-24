@@ -48,7 +48,7 @@ module Dataframe = struct
       try
         let line = input_line file in
         let data = String.split_on_char ',' line in
-        let row = Row.row_from_list data ncols types in
+        let row = Row.row_from_string_list types ncols data in
         Seq.Cons (row, readlines);
       with End_of_file -> 
         close_in file;
@@ -63,7 +63,7 @@ module Dataframe = struct
     let load_from_csv = load_from_file ","
     let load_from_tsv = load_from_file "\t"
 
-    (* let load_from_json filepath = 
+    let load_from_json filepath = 
       let file = open_in filepath in
       let rec iter acc = 
       try
@@ -73,9 +73,62 @@ module Dataframe = struct
         close_in file;
         acc in
       let json_string = iter "" in
-      let (_, json_obj) = JSON.parse_object json_string 0 in
-      json_obj *)
+      let json_obj = 
+        try JSON.parse json_string 
+        with _ -> failwith ("Failed to parse JSON") in
 
-    (* TODO *)
-    let load_from_json = load_from_file " "
+      let headers = 
+        try JSON.get_value json_obj "columns" 
+        with _ -> failwith "Missing key columns" in
+
+      let headers = 
+        try JSON_Value.array_to_list (headers)
+        with _ -> failwith "columns must be an array" in
+
+      let headers = 
+        try List.map JSON_Value.string_value_to_string headers
+        with _ -> failwith "Invalid datatype for column name" in
+
+      let ncols = List.length headers in
+
+      let dtypes = 
+        try JSON.get_value json_obj "datatypes"
+        with _ -> failwith "Missing key datatypes" in
+
+      let dtypes = 
+        try JSON_Value.array_to_list dtypes
+        with _ -> failwith "datatypes must be an array" in
+
+      let _ = 
+        if (List.length dtypes) = ncols then ()
+        else failwith "Invalid sizes of columns and datatypes" in
+
+      let dtypes = 
+        try List.map Datatype.string_to_datatype (List.map JSON_Value.string_value_to_string dtypes)
+        with _ -> failwith "Invalid datatype for column name" in
+
+      let data = 
+        try JSON.get_value json_obj "data"
+        with _ -> failwith "Missing key data" in
+
+      let data = 
+        match data with 
+          ARRAY (a) -> a
+        | _ -> failwith "Data should be provided as an array of arrays" in
+
+
+      let data = 
+        try List.map JSON_Value.array_to_list data
+        with _ -> failwith "Data should be provided as an array of arrays" in
+
+        
+      let rows = Seq.map (Row.row_from_json_value_list dtypes ncols) (List.to_seq data) in
+
+      {
+        headers = headers;
+        dtypes = dtypes;
+        rows = rows;
+        ncols = ncols;
+      }
+      
 end
