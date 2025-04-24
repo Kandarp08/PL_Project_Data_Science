@@ -10,16 +10,16 @@ dataframe.cmo: dataframe.ml dataframe.cmi row.cmi utils.cmi data_object.cmi data
 dataframe.cmi: dataframe.mli row.cmi datatypes.cmi data_object.cmi utils.cmi
 	ocamlc -c dataframe.mli
 
-row.cmo: row.ml row.cmi data_object.cmi datatypes.cmi
+row.cmo: row.ml row.cmi data_object.cmi datatypes.cmi utils.cmi
 	ocamlc -c row.ml
 
-row.cmi: row.mli data_object.cmi datatypes.cmi
+row.cmi: row.mli data_object.cmi datatypes.cmi utils.cmi
 	ocamlc -c row.mli
 
 data_object.cmo: data_object.ml data_object.cmi datatypes.cmi utils.cmi
 	ocamlc -c data_object.ml
 
-data_object.cmi: data_object.mli datatypes.cmi
+data_object.cmi: data_object.mli datatypes.cmi utils.cmi
 	ocamlc -c data_object.mli
 
 datatypes.cmo: datatypes.cmi utils.cmi datatypes.ml

@@ -1,0 +1,9 @@
+{
+    "columns" : ["col1", "col2", "col3"],
+    "datatypes" : ["int", "bool", "string"],
+    "data" : [
+        [1, true, "Hello"],
+        [2, false, "Bye"],
+        [3, false, "Hi"]
+    ]
+}

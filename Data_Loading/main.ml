@@ -3,7 +3,7 @@ open Row
 
 let main () = 
     begin
-        let df = Dataframe.load_from_csv "test.csv" in
+        let df = Dataframe.load_from_json "test.json" in
         Seq.iter Row.display_row df.rows;
     end
 
