@@ -154,11 +154,57 @@ let rec joinItemWithList item l colName df1 df2 =
   [] -> []
   | hd :: tl -> (mergeIntoSingleRecord item hd colName df1 df2) :: (joinItemWithList item tl colName df1 df2);;
 
+
+(*-------------CONVERT TO DATAFRAME OBJECT TYPE-----------*)
+let convertToDataFrame (rows: Row.t list) : dataframe =
+  (* If no rows, return an empty dataframe with combined headers *)
+  if rows = [] then 
+    { 
+      headers = [];
+      dtypes = [];
+      rows = Seq.empty;
+      ncols = 0;
+    }
+  else
+    (* Create combined headers by removing duplicates of the join column *)
+    let combined_headers = 
+      let row1_headers = df1.headers in
+      let row2_headers_filtered = List.filter (fun h -> not (List.mem h row1_headers)) df2.headers in
+      row1_headers @ row2_headers_filtered 
+    in
+    
+    (* Create combined dtypes (matching the combined headers) *)
+    let combined_dtypes =
+      let row1_dtypes = df1.dtypes in
+      let row2_dtypes_filtered = 
+        let rec filter_dtypes headers dtypes acc excluded_headers =
+          match (headers, dtypes) with
+          | ([], _) | (_, []) -> List.rev acc
+          | (h::hs, d::ds) -> 
+              if List.mem h excluded_headers then
+                filter_dtypes hs ds acc excluded_headers
+              else
+                filter_dtypes hs ds (d :: acc) excluded_headers
+        in
+        filter_dtypes df2.headers df2.dtypes [] df1.headers
+      in
+      row1_dtypes @ row2_dtypes_filtered
+    in
+    
+    (* Return the new dataframe *)
+    {
+      headers = combined_headers;
+      dtypes = combined_dtypes;
+      rows = List.to_seq rows;
+      ncols = List.length combined_headers;
+    }
+(*--------END: convertToDataFrame function-----------*)
+
 let rec join df1 df2 colName =
   let l1 = get_rows_as_list df1 in
   let l2 = get_rows_as_list df2 in
 
-  let rec joinHelper (l1: 'a list) (l2: 'a list) colName =
+  let rec joinHelper (l1: 'a list) (l2: 'a list) colName = 
     match (l1, l2) with
     | ([], _) -> []
     | (_, []) -> []
@@ -166,6 +212,84 @@ let rec join df1 df2 colName =
       let list_including_emptyLists = (joinItemWithList l1_hd l2 colName df1 df2) @ (joinHelper l1_tl l2 colName) in
       List.filter (fun subList -> subList <> []) list_including_emptyLists
   in
-  joinHelper l1 l2 colName;;
+  let finalJoinedList = joinHelper l1 l2 colName in
+  convertToDataFrame finalJoinedList;;
 
-join df1 df2 "city_id";;
+let joinedDF = join df1 df2 "city_id";;
+
+(*-----FUNCTIONS TO VISUALISE A DATAFRAME------*)
+(* Function to convert a data_object to a string representation *)
+let string_of_data_object = function
+  | INT_DATA i -> string_of_int i
+  | FLOAT_DATA f -> string_of_float f
+  | STRING_DATA s -> s
+  | BOOL_DATA b -> string_of_bool b
+  | CHAR_DATA c -> String.make 1 c
+  | NULL -> "NULL"
+
+(* Function to find the maximum width needed for each column *)
+let compute_column_widths df =
+  let header_widths = List.map String.length df.headers in
+  
+  (* Convert sequence to list for easier processing *)
+  let rows_list = get_rows_as_list df in
+  
+  (* For each column, find the max width needed *)
+  let max_widths = List.mapi (fun col_idx header ->
+    let header_width = String.length header in
+    let max_data_width = List.fold_left (fun max_width row ->
+      if col_idx < List.length row then
+        let value_str = string_of_data_object (List.nth row col_idx) in
+        max max_width (String.length value_str)
+      else max_width
+    ) 0 rows_list in
+    max header_width max_data_width
+  ) df.headers in
+  
+  max_widths
+
+(* Print a horizontal separator line *)
+let print_separator widths =
+  print_string "+";
+  List.iter (fun w -> print_string (String.make (w + 2) '-'); print_string "+") widths;
+  print_newline ()
+
+(* Display the dataframe in a tabular format *)
+let display_dataframe df =
+  (* If the dataframe is empty, show a message *)
+  if df.headers = [] then
+    print_endline "Empty dataframe"
+  else
+    let col_widths = compute_column_widths df in
+    
+    (* Print the header row *)
+    print_separator col_widths;
+    print_string "| ";
+    List.iter2 (fun header width ->
+      Printf.printf "%-*s | " width header
+    ) df.headers col_widths;
+    print_newline ();
+    print_separator col_widths;
+    
+    (* Print each data row *)
+    let rows_list = get_rows_as_list df in
+    List.iter (fun row ->
+      print_string "| ";
+      List.iteri (fun i cell ->
+        if i < List.length col_widths then
+          let width = List.nth col_widths i in
+          Printf.printf "%-*s | " width (string_of_data_object cell)
+      ) row;
+      print_newline ()
+    ) rows_list;
+    print_separator col_widths;
+    
+    (* Print dataframe summary *)
+    Printf.printf "Dataframe with %d columns and %d rows\n" 
+      df.ncols (List.length rows_list)
+
+(*--------------END: VISUALISING FUNCION CODE----------*)
+
+let () = 
+  let joined_df = join df1 df2 "city_id" in
+  display_dataframe joined_df
