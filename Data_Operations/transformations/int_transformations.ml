@@ -8,6 +8,7 @@ open Operations
 module type INT_TRANSFORMATIONS = 
 sig
     val normalize : (data_object Seq.t) -> (data_object Seq.t)
+    val fillna : (data_object Seq.t) -> (data_object Seq.t)
 end
 
 module Int_transformations : INT_TRANSFORMATIONS = 
@@ -26,4 +27,27 @@ struct
 
         (* Use the map function to carry out normalization *)
         Operations.map normalization_function seq 
+
+    let fillna seq = 
+
+        let is_not_null x =
+
+            match to_string x with
+            | "NULL" -> false
+            | _ -> true
+
+        and 
+
+        impute_null impute_val x = 
+
+            match int_of_string_opt (to_string x) with 
+            | Some n -> INT_DATA (n)
+            | None -> INT_DATA (impute_val)
+
+        in
+
+        let non_null = Operations.filter is_not_null seq in 
+        let mean = int_of_float (Int_util.mean non_null) in 
+
+        Operations.map (impute_null mean) seq
 end

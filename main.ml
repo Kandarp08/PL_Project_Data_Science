@@ -28,6 +28,12 @@ let main () =
 
         let el = INT_DATA (27) in 
         print_endline (string_of_bool (Lib.mem df "Age" el));
+
+        print_endline "Imputin null values: ";
+
+        let df = Dataframe.load_from_csv "test2.csv" in
+        let new_df = Lib.fillna df "Age" in
+        Seq.iter Row.display_row new_df.rows;
     end
 
 let _ = main ()

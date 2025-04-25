@@ -8,6 +8,7 @@ open Float_util
 open Operations
 open Int_transformations
 open Float_transformations
+open Lib_utils
 
 module type LIB =
 sig
@@ -17,55 +18,11 @@ sig
     val fold_left : Dataframe.t -> string -> (data_object -> data_object -> data_object) -> data_object -> data_object
     val fold_right : Dataframe.t -> string -> (data_object -> data_object -> data_object) -> data_object -> data_object
     val normalize : Dataframe.t -> string -> Dataframe.t
+    val fillna : Dataframe.t -> string -> Dataframe.t
 end
 
 module Lib : LIB = 
 struct
-
-    let rec convert col_idx mapped_column original_column original_row = 
-                
-        match mapped_column () with 
-        | Seq.Nil -> Seq.Nil
-        | Seq.Cons(h', t') -> 
-            
-            match original_column () with
-            | Seq.Nil -> failwith "Unexpected error in Lib.map"
-            | Seq.Cons(h, t) ->
-
-                match original_row () with
-                | Seq.Nil -> failwith "Unexpected error in Lib.map"
-                | Seq.Cons(rowh, rowt) ->
-
-                    let old_row = ref (Array.of_list rowh) in
-                    !old_row.(col_idx) <- h';
-                    let new_row = (Array.to_list !old_row) in
-
-                    Seq.Cons(new_row, fun () -> convert col_idx t' t rowt)
-
-    let rec filter_rows col_idx filtered_column original_column original_row = 
-
-        match filtered_column () with 
-        | Seq.Nil -> Seq.Nil
-        | Seq.Cons(h', t') ->
-
-            match original_column () with
-            | Seq.Nil -> failwith "Unexpected error in Lib.map"
-            | Seq.Cons(h, t) ->
-
-                match original_row () with
-                | Seq.Nil -> failwith "Unexpected error in Lib.map"
-                | Seq.Cons(rowh, rowt) ->
-
-                    if h = h' then
-
-                        let old_row = ref (Array.of_list rowh) in
-                        !old_row.(col_idx) <- h';
-                        let new_row = (Array.to_list !old_row) in
-
-                        Seq.Cons(new_row, fun () -> filter_rows col_idx t' t rowt)
-
-                    else 
-                        filter_rows col_idx filtered_column t rowt
 
     let map df f col_name = 
 
@@ -74,7 +31,7 @@ struct
 
         let mapped_column = Operations.map f column in
         
-        let new_df = { df with rows = fun () -> convert col_idx mapped_column column df.rows} in
+        let new_df = { df with rows = fun () -> Lib_utils.convert col_idx mapped_column column df.rows} in
         
         new_df
 
@@ -85,7 +42,7 @@ struct
 
         let filtered_column = Operations.filter f column in
 
-        let new_df = { df with rows = fun () -> filter_rows col_idx filtered_column column df.rows } in
+        let new_df = { df with rows = fun () -> Lib_utils.filter_rows col_idx filtered_column column df.rows } in
 
         new_df
 
@@ -118,7 +75,22 @@ struct
                                 | FLOAT -> Float_transformations.normalize column
                                 | _ -> failwith "Inappropriate data type for normalization" in
 
-        let new_df = { df with rows = fun () -> convert col_idx transformed_column column df.rows} in
+        let new_df = { df with rows = fun () -> Lib_utils.convert col_idx transformed_column column df.rows } in
         
-        new_df                
+        new_df    
+        
+    let fillna df col_name = 
+
+        let col_idx = Dataframe.get_column_index df col_name in
+        let column = Dataframe.get_column df col_name in 
+        let datatype = List.nth df.dtypes col_idx in 
+
+        let imputed_column = match datatype with 
+                             | INT -> Int_transformations.fillna column 
+                             | FLOAT -> Float_transformations.fillna column
+                             | _ -> failwith "Inappropriate data type for imputing null values" in 
+
+        let new_df = { df with rows = fun () -> Lib_utils.convert col_idx imputed_column column df.rows } in
+
+        new_df
 end

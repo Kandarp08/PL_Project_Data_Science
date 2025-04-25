@@ -8,6 +8,7 @@ open Operations
 module type INT_TRANSFORMATIONS = 
 sig
     val normalize : (data_object Seq.t) -> (data_object Seq.t)
+    val fillna : (data_object Seq.t) -> (data_object Seq.t)
 end
 
 module Int_transformations : INT_TRANSFORMATIONS
