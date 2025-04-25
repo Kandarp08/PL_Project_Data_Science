@@ -19,6 +19,7 @@ sig
     val fold_right : Dataframe.t -> string -> (data_object -> data_object -> data_object) -> data_object -> data_object
     val normalize : Dataframe.t -> string -> Dataframe.t
     val fillna : Dataframe.t -> string -> Dataframe.t
+    val join : Dataframe.t -> Dataframe.t -> string -> Dataframe.t
 end
 
 module Lib : LIB = 
@@ -93,4 +94,21 @@ struct
         let new_df = { df with rows = fun () -> Lib_utils.convert col_idx imputed_column column df.rows } in
 
         new_df
+
+    let rec join df1 df2 colName =
+        let l1 = Lib_utils.get_rows_as_list df1 in
+        let l2 = Lib_utils.get_rows_as_list df2 in
+
+        let rec joinHelper (l1: 'a list) (l2: 'a list) colName = 
+            match (l1, l2) with
+            | ([], _) -> []
+            | (_, []) -> []
+            | (l1_hd::l1_tl, l2_hd::l2_tl) -> 
+            let list_including_emptyLists = (Lib_utils.joinItemWithList l1_hd l2 colName df1 df2) @ (joinHelper l1_tl l2 colName) in
+            List.filter (fun subList -> subList <> []) list_including_emptyLists
+        in
+        let finalJoinedList = joinHelper l1 l2 colName in
+        
+        Lib_utils.convertToDataFrame finalJoinedList df1 df2
+
 end

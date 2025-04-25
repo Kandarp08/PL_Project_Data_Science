@@ -18,6 +18,7 @@ sig
     val fold_right : Dataframe.t -> string -> (data_object -> data_object -> data_object) -> data_object -> data_object
     val normalize : Dataframe.t -> string -> Dataframe.t
     val fillna : Dataframe.t -> string -> Dataframe.t
+    val join : Dataframe.t -> Dataframe.t -> string -> Dataframe.t
 end
 
 module Lib : LIB

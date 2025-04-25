@@ -29,11 +29,13 @@ let main () =
         let el = INT_DATA (27) in 
         print_endline (string_of_bool (Lib.mem df "Age" el));
 
-        print_endline "Imputin null values: ";
+        print_endline "\nJoin: \n";
 
-        let df = Dataframe.load_from_csv "test2.csv" in
-        let new_df = Lib.fillna df "Age" in
-        Seq.iter Row.display_row new_df.rows;
+        let df1 = Dataframe.load_from_csv "test1.csv" and
+        df2 = Dataframe.load_from_csv "test2.csv" in
+        
+        let joined_df = Lib.join df1 df2 "Name" in
+        Seq.iter Row.display_row joined_df.rows;
     end
 
 let _ = main ()

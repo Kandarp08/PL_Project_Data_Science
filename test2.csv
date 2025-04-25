@@ -1,5 +1,5 @@
-Name,Age
-String,Float
-Kandarp,20
-Madhav,31
-Dave,NULL
+Name,Property
+String,String
+Kandarp,Good
+Madhav,Brilliant
+Dave,Nice
