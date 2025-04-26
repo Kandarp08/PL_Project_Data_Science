@@ -8,6 +8,7 @@ open Operations
 module type FLOAT_TRANSFORMATIONS = 
 sig
     val normalize : (data_object Seq.t) -> (data_object Seq.t)
+    val min_max_normalize : (data_object Seq.t) -> (data_object Seq.t)
     val fillna : (data_object Seq.t) -> (data_object Seq.t)
 end
 
