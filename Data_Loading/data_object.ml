@@ -59,4 +59,13 @@ module DataObject = struct
       | _ -> NULL
     with
       _ -> NULL
+
+  let get_datatype data = 
+    match data with 
+    | STRING_DATA (_) -> STRING
+    | FLOAT_DATA (_) -> FLOAT
+    | BOOL_DATA (_) -> BOOL
+    | CHAR_DATA (_) -> CHAR
+    | INT_DATA (_) -> INT
+    | _ -> failwith "Value cannot be NULL"
 end
