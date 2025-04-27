@@ -32,6 +32,15 @@ module DataObject = struct
       | FLOAT_DATA (d) -> string_of_float d
       | NULL -> ""
 
+  let to_json_value data = 
+    match data with
+        STRING_DATA (d) -> get_output_string d
+      | INT_DATA (d) -> string_of_int d
+      | CHAR_DATA (d) -> get_output_string (String.make 1 d)
+      | BOOL_DATA (d) -> string_of_bool d
+      | FLOAT_DATA (d) -> string_of_float d
+      | NULL -> "null"
+
   let from_string dtype data  = 
     try
       let sdata = strip data in

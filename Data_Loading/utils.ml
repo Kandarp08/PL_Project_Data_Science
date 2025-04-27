@@ -9,6 +9,8 @@ let strip str =
 
 let get_output_string str = ("\"" ^ str ^ "\"")
 
+let output_str_list l = String.concat ", " (List.map get_output_string l)
+
 
 type json_object = (string * json_value) list
 and 

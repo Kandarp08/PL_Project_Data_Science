@@ -4,6 +4,9 @@ val strip : string -> string
 (* Add quotes to string *)
 val get_output_string : string -> string
 
+(* Converts a string list to a string *)
+val output_str_list : string list -> string
+
 (* Representing JSON data *)
 type json_object = (string * json_value) list
 and 

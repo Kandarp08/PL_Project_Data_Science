@@ -79,6 +79,7 @@ module Dataframe = struct
         close_in file;
         acc in
       let json_string = iter "" in
+      let _ = print_string ("Hello: " ^ json_string) in
       let json_obj = 
         try JSON.parse json_string 
         with _ -> failwith ("Failed to parse JSON") in
@@ -138,10 +139,18 @@ module Dataframe = struct
       }
 
   let to_csv df filepath = 
-    let output_str_list l = String.concat "," (List.map get_output_string l) in
     let file = open_out filepath in
     let output_row r = Printf.fprintf file "%s\n" (Row.row_to_csv df.dtypes r) in
     let _ = Printf.fprintf file "%s\n" (output_str_list df.headers) in
     let _ = Printf.fprintf file "%s\n" (output_str_list (List.map Datatype.datatype_to_string df.dtypes)) in
-    Seq.iter output_row df.rows
+    let _ = Seq.iter output_row df.rows in
+    close_out file
+
+  let to_json df filepath = 
+    let file = open_out filepath in
+    let output_rows = "[" ^ (String.concat ", " (List.of_seq (Seq.map Row.row_to_json_array df.rows))) ^ "]" in
+    let cols = "[" ^ (output_str_list df.headers) ^ "]" in
+    let dtypes = "[" ^ (output_str_list (List.map Datatype.datatype_to_string df.dtypes)) ^ "]" in
+    let _ = Printf.fprintf file "{\"columns\": %s, \"datatypes\": %s, \"data\": %s}\n" cols dtypes output_rows in
+    close_out file
 end

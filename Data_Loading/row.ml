@@ -37,4 +37,6 @@ module Row = struct
         | STRING -> iter (i+1) (acc @ [get_output_string ri])
         | _ -> iter (i+1) (acc @ [ri]) in
     String.concat ", " (iter 0 [])
+
+  let row_to_json_array r = "[" ^ (String.concat ", " (List.map DataObject.to_json_value r)) ^ "]"
 end

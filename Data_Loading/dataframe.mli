@@ -44,4 +44,7 @@ module Dataframe : sig
 
   (* Stores a dataframe as a CSV file *)
   val to_csv : dataframe -> string -> unit
+
+  (* Stores a dataframe as a JSON file *)
+  val to_json : dataframe -> string -> unit
 end
