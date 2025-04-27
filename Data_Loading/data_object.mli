@@ -27,5 +27,6 @@ module DataObject : sig
   (** Convert a json_value to a data object of the specified type *)
   val from_json_value : datatype -> json_value -> data_object
 
+  (*Get datatype from data_object *)
   val get_datatype : data_object -> datatype
 end

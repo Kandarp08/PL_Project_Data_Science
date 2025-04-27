@@ -12,4 +12,5 @@ type datatype =
 module Datatype : sig
   type t = datatype
   val string_to_datatype : string -> datatype
+  val datatype_to_string : datatype -> string
 end

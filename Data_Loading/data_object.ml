@@ -30,7 +30,7 @@ module DataObject = struct
       | CHAR_DATA (d) -> String.make 1 d 
       | BOOL_DATA (d) -> string_of_bool d
       | FLOAT_DATA (d) -> string_of_float d
-      | NULL -> "NULL"
+      | NULL -> ""
 
   let from_string dtype data  = 
     try

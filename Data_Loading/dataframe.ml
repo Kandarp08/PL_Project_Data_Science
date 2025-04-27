@@ -136,5 +136,12 @@ module Dataframe = struct
         rows = rows;
         ncols = ncols;
       }
-      
+
+  let to_csv df filepath = 
+    let output_str_list l = String.concat "," (List.map get_output_string l) in
+    let file = open_out filepath in
+    let output_row r = Printf.fprintf file "%s\n" (Row.row_to_csv df.dtypes r) in
+    let _ = Printf.fprintf file "%s\n" (output_str_list df.headers) in
+    let _ = Printf.fprintf file "%s\n" (output_str_list (List.map Datatype.datatype_to_string df.dtypes)) in
+    Seq.iter output_row df.rows
 end

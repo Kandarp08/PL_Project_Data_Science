@@ -7,6 +7,8 @@ let strip str =
       (String.starts_with ~prefix:"\'" trimmed && String.ends_with ~suffix:"\'" trimmed) then String.sub trimmed 1 (l-2)
     else trimmed
 
+let get_output_string str = ("\"" ^ str ^ "\"")
+
 
 type json_object = (string * json_value) list
 and 

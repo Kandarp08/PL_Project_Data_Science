@@ -41,4 +41,7 @@ module Dataframe : sig
 
   (** Load a dataframe from a JSON file *)
   val load_from_json : string -> dataframe
+
+  (* Stores a dataframe as a CSV file *)
+  val to_csv : dataframe -> string -> unit
 end

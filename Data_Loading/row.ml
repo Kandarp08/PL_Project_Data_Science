@@ -27,4 +27,14 @@ module Row = struct
   let row_from_string_list = row_from_list DataObject.from_string
 
   let row_from_json_value_list = row_from_list DataObject.from_json_value
+
+  let row_to_csv dtypes r = 
+    let rec iter i acc = 
+      if i >= List.length dtypes || i >= List.length r then acc
+      else
+        let ri = DataObject.to_string (List.nth r i) in
+        match List.nth dtypes i with
+        | STRING -> iter (i+1) (acc @ [get_output_string ri])
+        | _ -> iter (i+1) (acc @ [ri]) in
+    String.concat ", " (iter 0 [])
 end

@@ -17,4 +17,7 @@ module Row : sig
 
   (** Create a row from a list of strings, applying the appropriate datatypes *)
   val row_from_json_value_list : datatype list -> int -> json_value list -> t
+
+  (* Converta a row into a CSV string *)
+  val row_to_csv : datatype list -> data_object list -> string
 end

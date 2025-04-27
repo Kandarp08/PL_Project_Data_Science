@@ -22,4 +22,12 @@ module Datatype = struct
     | "float" -> FLOAT
     | _ -> failwith "Invalid datatype"
 
+  let datatype_to_string dtype = 
+    match dtype with
+    | STRING -> "String"
+    | INT -> "Int"
+    | FLOAT -> "Float"
+    | BOOL -> "Bool"
+    | CHAR -> "Char"
+
 end

@@ -1,6 +1,9 @@
 (** Remove quotes and whitespace from a string *)
 val strip : string -> string
 
+(* Add quotes to string *)
+val get_output_string : string -> string
+
 (* Representing JSON data *)
 type json_object = (string * json_value) list
 and 
