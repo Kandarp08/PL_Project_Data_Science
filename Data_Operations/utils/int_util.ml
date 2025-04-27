@@ -16,6 +16,7 @@ struct
 
     let sum seq =
 
+        (* Converting given sequence to integer sequence *)
         let int_seq = seq 
                         |> Operations.map to_string 
                         |> Operations.map (fun s -> from_string INT s)
@@ -48,6 +49,7 @@ struct
 
     let stddev seq =
 
+        (* Converting given sequence to integer sequence *)
         let int_seq = seq 
                         |> Operations.map to_string 
                         |> Operations.map (fun s -> from_string INT s)

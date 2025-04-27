@@ -23,18 +23,22 @@ struct
 
     let rec convert col_idx mapped_column original_column original_row = 
                     
+        (* Sequence containing new values *)
         match mapped_column () with 
         | Seq.Nil -> Seq.Nil
         | Seq.Cons(h', t') -> 
             
+            (* Sequence containing old values *)
             match original_column () with
             | Seq.Nil -> failwith "Unexpected error in Lib.map"
             | Seq.Cons(h, t) ->
 
+                (* Current row *)
                 match original_row () with
                 | Seq.Nil -> failwith "Unexpected error in Lib.map"
                 | Seq.Cons(rowh, rowt) ->
 
+                    (* Change the element at index col_idx *)
                     let old_row = Array.of_list rowh in
                     old_row.(col_idx) <- h';
                     let new_row = (Array.to_list old_row) in
@@ -43,25 +47,24 @@ struct
 
     let rec filter_rows col_idx filtered_column original_column original_row = 
 
+        (* Values present in the filtered column *)
         match filtered_column () with 
         | Seq.Nil -> Seq.Nil
         | Seq.Cons(h', t') ->
 
+            (* Original sequence *)
             match original_column () with
             | Seq.Nil -> failwith "Unexpected error in Lib.map"
             | Seq.Cons(h, t) ->
 
+                (* Current row *)
                 match original_row () with
                 | Seq.Nil -> failwith "Unexpected error in Lib.map"
                 | Seq.Cons(rowh, rowt) ->
 
+                    (* Take current row if values match *)
                     if h = h' then
-
-                        let old_row = Array.of_list rowh in
-                        old_row.(col_idx) <- h';
-                        let new_row = (Array.to_list old_row) in
-
-                        Seq.Cons(new_row, fun () -> filter_rows col_idx t' t rowt)
+                        Seq.Cons(rowh, fun () -> filter_rows col_idx t' t rowt)
 
                     else 
                         filter_rows col_idx filtered_column t rowt

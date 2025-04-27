@@ -16,6 +16,7 @@ struct
 
     let sum seq =
 
+        (* Convert given sequence fo float sequence *)
         let float_seq = seq 
                         |> Operations.map to_string 
                         |> Operations.map (fun s -> from_string FLOAT s)
@@ -48,6 +49,7 @@ struct
 
     let stddev seq =
 
+        (* Convert given sequence to float sequence *)
         let float_seq = seq 
                         |> Operations.map to_string 
                         |> Operations.map (fun s -> from_string FLOAT s)

@@ -9,7 +9,7 @@ module type INT_TRANSFORMATIONS =
 sig
     val normalize : (data_object Seq.t) -> (data_object Seq.t)
     val min_max_normalize : (data_object Seq.t) -> (data_object Seq.t)
-    val fillna : (data_object Seq.t) -> (data_object Seq.t)
+    val imputena : (data_object Seq.t) -> (data_object Seq.t)
 end
 
 module Int_transformations : INT_TRANSFORMATIONS = 
@@ -20,6 +20,7 @@ struct
         let mean = Int_util.mean seq and (* Mean of sequence *)
         stddev = Int_util.stddev seq in  (* Standard deviation of sequence *)
 
+        (* Function to normalize a data_object *)
         let normalization_function x = to_string x
                                     |> from_string INT
                                     |> (function INT_DATA x -> ((float_of_int x) -. mean) /. stddev | _ -> 0.)
@@ -29,8 +30,9 @@ struct
         (* Use the map function to carry out normalization *)
         Operations.map normalization_function seq 
 
-    let fillna seq = 
+    let imputena seq = 
 
+        (* Function to check whether data_object is NULL or not *)
         let is_not_null x =
 
             match to_string x with
@@ -39,6 +41,7 @@ struct
 
         and 
 
+        (* Function that replaces NULL values with impute_val *)
         impute_null impute_val x = 
 
             match int_of_string_opt (to_string x) with 
@@ -47,13 +50,14 @@ struct
 
         in
 
-        let non_null = Operations.filter is_not_null seq in 
-        let mean = int_of_float (Int_util.mean non_null) in 
+        let non_null = Operations.filter is_not_null seq in (* Non-NULL elements *)
+        let mean = int_of_float (Int_util.mean non_null) in (* Mean of non-NULL elements*)
 
         Operations.map (impute_null mean) seq
 
     let min_max_normalize seq = 
 
+        (* Minimum element of sequence *)
         let rec min seq mn = 
 
             match seq () with
@@ -63,6 +67,7 @@ struct
                 | INT_DATA x -> if x < mn then min t x else min t mn
                 | _ -> failwith "Unexpected error in min_max_normalize" in
 
+        (* Maximum element of sequence *)
         let rec max seq mx = 
             
             match seq () with
@@ -75,6 +80,7 @@ struct
         let mn = min seq max_int and
         mx = max seq min_int in
 
+        (* Function that applies min-max normalization *)
         let normalization_function x = to_string x
                                     |> from_string INT
                                     |> (function INT_DATA x -> ((float_of_int x) -. (float_of_int mn)) /. float_of_int (mx - mn) | _ -> 0.)
