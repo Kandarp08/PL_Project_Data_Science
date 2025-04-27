@@ -10,11 +10,12 @@ let main () =
         print_endline "Original df: ";
         Seq.iter Row.display_row df.rows;
 
-        let f = (function INT_DATA x -> INT_DATA (x + 10) | _ -> INT_DATA (-1)) in
+        let f = (function INT_DATA x -> FLOAT_DATA ((float_of_int x) +. 10.) | _ -> FLOAT_DATA (-1.)) in
         let new_df = Lib.map df f "Age" in
 
         print_endline "Map function (x + 10): ";
         Seq.iter Row.display_row new_df.rows;
+        Dataframe.to_csv new_df "testk.csv";
 
         let new_df = Lib.normalize df "Age" in
         print_endline "Normalize: ";
