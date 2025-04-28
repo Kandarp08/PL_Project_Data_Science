@@ -12,26 +12,26 @@ open Lib_utils
 
 module type LIB =
 sig
-    val map : Dataframe.t -> (data_object -> data_object) -> string -> Dataframe.t
-    val filter : Dataframe.t -> (data_object -> bool) -> string -> Dataframe.t
-    val mem : Dataframe.t -> string -> data_object -> bool
-    val fold_left : Dataframe.t -> string -> (data_object -> data_object -> data_object) -> data_object -> data_object
-    val fold_right : Dataframe.t -> string -> (data_object -> data_object -> data_object) -> data_object -> data_object
-    val normalize : Dataframe.t -> string -> Dataframe.t
-    val min_max_normalize : Dataframe.t -> string -> Dataframe.t
-    val imputena : Dataframe.t -> string -> Dataframe.t
-    val fillna : Dataframe.t -> string -> data_object -> Dataframe.t
+    val map : (data_object -> data_object) -> string -> Dataframe.t -> Dataframe.t
+    val filter : (data_object -> bool) -> string -> Dataframe.t -> Dataframe.t
+    val mem : string -> data_object -> Dataframe.t -> bool
+    val fold_left : string -> (data_object -> data_object -> data_object) -> data_object -> Dataframe.t -> data_object
+    val fold_right : string -> (data_object -> data_object -> data_object) -> data_object -> Dataframe.t -> data_object
+    val normalize : string -> Dataframe.t -> Dataframe.t
+    val min_max_normalize : string -> Dataframe.t -> Dataframe.t
+    val imputena : string -> Dataframe.t -> Dataframe.t
+    val fillna : string -> data_object -> Dataframe.t -> Dataframe.t
     val join : Dataframe.t -> Dataframe.t -> string -> Dataframe.t
-    val sum : Dataframe.t -> string -> data_object
-    val len : Dataframe.t -> string -> int
-    val mean : Dataframe.t -> string -> float
-    val stddev : Dataframe.t -> string -> float
+    val sum : string -> Dataframe.t -> data_object
+    val len : string -> Dataframe.t -> int
+    val mean : string -> Dataframe.t -> float
+    val stddev : string -> Dataframe.t -> float
 end
 
 module Lib : LIB = 
 struct
 
-    let map df f col_name = 
+    let map f col_name df = 
 
         let col_idx = Dataframe.get_column_index df col_name in
         let datatype = List.nth df.dtypes col_idx in
@@ -56,7 +56,7 @@ struct
         
         new_df
 
-    let filter df f col_name = 
+    let filter f col_name df = 
 
         let col_idx = Dataframe.get_column_index df col_name in
         let column = Dataframe.get_column df col_name in 
@@ -67,25 +67,25 @@ struct
 
         new_df
 
-    let mem df col_name el = 
+    let mem col_name el df = 
 
         let column = Dataframe.get_column df col_name in
 
         Operations.mem el column
 
-    let fold_left df col_name f init = 
+    let fold_left col_name f init df = 
 
         let column = Dataframe.get_column df col_name in
 
         Operations.fold_left f init column
 
-    let fold_right df col_name f init = 
+    let fold_right col_name f init df = 
 
         let column = Dataframe.get_column df col_name in
 
         Operations.fold_right f column init
 
-    let normalize df col_name = 
+    let normalize col_name df = 
 
         let col_idx = Dataframe.get_column_index df col_name in
         let column = Dataframe.get_column df col_name in  
@@ -114,7 +114,7 @@ struct
         new_df
 
 
-    let min_max_normalize df col_name = 
+    let min_max_normalize col_name df = 
 
         let col_idx = Dataframe.get_column_index df col_name in
         let column = Dataframe.get_column df col_name in  
@@ -142,7 +142,7 @@ struct
         
         new_df
 
-    let imputena df col_name = 
+    let imputena col_name df = 
 
         let col_idx = Dataframe.get_column_index df col_name in
         let column = Dataframe.get_column df col_name in 
@@ -160,7 +160,7 @@ struct
         
         new_df
 
-    let fillna df col_name el = 
+    let fillna col_name el df = 
 
         let col_idx = Dataframe.get_column_index df col_name in
         let datatype = List.nth df.dtypes col_idx and
@@ -197,7 +197,7 @@ struct
         
         Lib_utils.convertToDataFrame finalJoinedList df1 df2
 
-    let sum df col_name = 
+    let sum col_name df = 
 
         let col_idx = Dataframe.get_column_index df col_name in
         let column = Dataframe.get_column df col_name in  
@@ -208,18 +208,18 @@ struct
         | FLOAT -> FLOAT_DATA (Float_util.sum column)
         | _ -> failwith "Inappropriate datatype for sum"
 
-    let len df col_name = 
+    let len col_name df = 
 
         let column = Dataframe.get_column df col_name in  
         
-        let rec aux seq = 
+        let rec aux seq curr_len = 
             match seq () with
-                Seq.Nil -> 0
-                | Seq.Cons(h, t) -> 1 + (aux t) in
+                Seq.Nil -> curr_len
+                | Seq.Cons(h, t) -> aux t (curr_len + 1) in
 
-        aux column
+        aux column 0
 
-    let mean df col_name = 
+    let mean col_name df = 
 
         let col_idx = Dataframe.get_column_index df col_name in
         let column = Dataframe.get_column df col_name in  
@@ -231,7 +231,7 @@ struct
         | _ -> failwith "Inappropriate datatype for mean"
 
     
-    let stddev df col_name = 
+    let stddev col_name df = 
 
         let col_idx = Dataframe.get_column_index df col_name in
         let column = Dataframe.get_column df col_name in  

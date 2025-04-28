@@ -23,22 +23,22 @@ struct
                         |> Operations.map (function FLOAT_DATA i -> i | _ -> 0.) in
 
         (* Helper function*)
-        let rec aux seq =
+        let rec aux seq curr_sum =
             match seq () with
-            | Seq.Nil -> 0.
-            | Seq.Cons(h, t) -> h +. aux t in
+            | Seq.Nil -> curr_sum
+            | Seq.Cons(h, t) -> aux t (h +. curr_sum) in
         
-        aux float_seq
+        aux float_seq 0.
             
         let len seq = 
 
             (* Helper function *)
-            let rec aux seq = 
+            let rec aux seq curr_len = 
                 match seq () with
-                Seq.Nil -> 0
-                | Seq.Cons(h, t) -> 1 + (aux t)in
+                Seq.Nil -> curr_len
+                | Seq.Cons(h, t) -> aux t (1 + curr_len) in
 
-            aux seq
+            aux seq 0
 
     let mean seq = 
 

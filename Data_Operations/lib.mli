@@ -8,50 +8,51 @@ open Float_util
 open Operations
 open Int_transformations
 open Float_transformations
+open Lib_utils
 
 module type LIB =
 sig
     (* Apply a given function to a column in the dataframe *)
-    val map : Dataframe.t -> (data_object -> data_object) -> string -> Dataframe.t
+    val map : (data_object -> data_object) -> string -> Dataframe.t -> Dataframe.t
 
     (* Filter rows of a dataframe whose columns satisfy a given function *)
-    val filter : Dataframe.t -> (data_object -> bool) -> string -> Dataframe.t
+    val filter : (data_object -> bool) -> string -> Dataframe.t -> Dataframe.t
 
     (* Find a given element in a particular column of the dataframe *)
-    val mem : Dataframe.t -> string -> data_object -> bool
+    val mem : string -> data_object -> Dataframe.t -> bool
 
     (* Update value of accumulator value by repeatedly applying a function *)    
-    val fold_left : Dataframe.t -> string -> (data_object -> data_object -> data_object) -> data_object -> data_object
+    val fold_left : string -> (data_object -> data_object -> data_object) -> data_object -> Dataframe.t -> data_object
     
     (* Update value of accumulator value by repeatedly applying a function *)
-    val fold_right : Dataframe.t -> string -> (data_object -> data_object -> data_object) -> data_object -> data_object
+    val fold_right : string -> (data_object -> data_object -> data_object) -> data_object -> Dataframe.t -> data_object
     
     (* Standardization of a given column of the dataframe *)
-    val normalize : Dataframe.t -> string -> Dataframe.t
+    val normalize : string -> Dataframe.t -> Dataframe.t
 
     (* Min-Max normalization of a given column of the dataframe *)
-    val min_max_normalize : Dataframe.t -> string -> Dataframe.t
+    val min_max_normalize : string -> Dataframe.t -> Dataframe.t
 
     (* Impute NULL values of integer/float column with the mean *)
-    val imputena : Dataframe.t -> string -> Dataframe.t
+    val imputena : string -> Dataframe.t -> Dataframe.t
 
     (* Replace NULL values of a given column with the given value *)
-    val fillna : Dataframe.t -> string -> data_object -> Dataframe.t
+    val fillna : string -> data_object -> Dataframe.t -> Dataframe.t
     
     (**)
     val join : Dataframe.t -> Dataframe.t -> string -> Dataframe.t
     
     (* Sum of a given integer/float column of the dataframe *)
-    val sum : Dataframe.t -> string -> data_object
+    val sum : string -> Dataframe.t -> data_object
 
     (* Length of a given column of the dataframe *)
-    val len : Dataframe.t -> string -> int
+    val len : string -> Dataframe.t -> int
 
     (* Mean of a given integer/float column of the dataframe *)
-    val mean : Dataframe.t -> string -> float
+    val mean : string -> Dataframe.t -> float
 
     (* Standard deviation of a given integer/float column of the dataframe *)
-    val stddev : Dataframe.t -> string -> float
+    val stddev : string -> Dataframe.t -> float
 end
 
 module Lib : LIB
