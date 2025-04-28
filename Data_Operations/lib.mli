@@ -12,6 +12,9 @@ open Lib_utils
 
 module type LIB =
 sig
+    (* Diplay the contents of the entire dataframe *)
+    val show_df : Dataframe.t -> unit
+
     (* Apply a given function to a column in the dataframe *)
     val map : (data_object -> data_object) -> string -> Dataframe.t -> Dataframe.t
 
@@ -53,6 +56,12 @@ sig
 
     (* Standard deviation of a given integer/float column of the dataframe *)
     val stddev : string -> Dataframe.t -> float
+
+    (* Add a new row to the dataframe *)
+    val add_row : Row.t -> Dataframe.t -> Dataframe.t
+    
+    (* Delete the rows which satisfy a given condition *)
+    val delete_row : (Row.t -> bool) -> Dataframe.t -> Dataframe.t
 end
 
 module Lib : LIB

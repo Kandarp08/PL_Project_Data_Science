@@ -12,6 +12,7 @@ open Lib_utils
 
 module type LIB =
 sig
+    val show_df : Dataframe.t -> unit
     val map : (data_object -> data_object) -> string -> Dataframe.t -> Dataframe.t
     val filter : (data_object -> bool) -> string -> Dataframe.t -> Dataframe.t
     val mem : string -> data_object -> Dataframe.t -> bool
@@ -26,10 +27,14 @@ sig
     val len : string -> Dataframe.t -> int
     val mean : string -> Dataframe.t -> float
     val stddev : string -> Dataframe.t -> float
+    val add_row : Row.t -> Dataframe.t -> Dataframe.t
+    val delete_row : (Row.t -> bool) -> Dataframe.t -> Dataframe.t
 end
 
 module Lib : LIB = 
 struct
+
+    let show_df df = Seq.iter Row.display_row df.rows
 
     let map f col_name df = 
 
@@ -241,4 +246,41 @@ struct
         | INT -> Int_util.stddev column
         | FLOAT -> Float_util.stddev column
         | _ -> failwith "Inappropriate datatype for stddev"
+
+    let add_row row df = 
+
+        (* Check whether data types of new row elements are appropriate or not *)
+        let rec validate_row row dtypes = 
+
+            match (row, dtypes) with 
+            | ([], []) -> true
+            | ([], _) -> false
+            | (_, []) -> false
+            | (obj :: objt, dt :: dtt) ->
+
+                if (Data_object.DataObject.get_datatype obj) <> dt then false
+                else validate_row objt dtt in
+
+        let validation = validate_row row df.dtypes in
+
+        match validation with
+
+        | false -> failwith "Data types of new row are incompatible"
+        | true -> { df with rows = fun () -> Seq.Cons(row, df.rows) }
+
+    let delete_row f df = 
+
+        let rec aux row = 
+
+            match row () with 
+            | Seq.Nil -> Seq.Nil
+            | Seq.Cons(curr_row, rowt) ->
+
+                (* Delete row if function f returns true *)
+                if f curr_row then aux rowt
+                else Seq.Cons(curr_row, fun () -> aux rowt) in
+
+        let new_df = { df with rows = fun () -> aux df.rows } in
+
+        new_df
 end
