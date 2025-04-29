@@ -64,7 +64,7 @@ sig
     val delete_row : (Row.t -> bool) -> Dataframe.t -> Dataframe.t
 
     (* Group the values of a given column, while applying given functions on the column values *)
-    val groupByAggregate : string -> (string * (data_object Seq.t -> data_object)) list -> Dataframe.t -> Dataframe.t
+    val groupByAggregate : string -> (string * (string -> Dataframe.t -> data_object)) list -> Dataframe.t -> Dataframe.t
 end
 
 module Lib : LIB

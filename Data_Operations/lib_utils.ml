@@ -30,11 +30,11 @@ sig
     val seq_to_list : data_object Seq.t -> data_object list
     val get_rows_as_list : Dataframe.t -> Row.t list
     val compute_column_widths : Dataframe.t -> int list
-    val singleAggregateResult : Dataframe.t -> string -> (data_object Seq.t -> data_object) -> data_object
+    val singleAggregateResult : Dataframe.t -> string -> (string -> Dataframe.t -> data_object) -> data_object
     val isMemOfSeq : 'a -> 'a Seq.t -> bool
     val getUniqueValues : Dataframe.t -> string -> data_object Seq.t
-    val applyOneColumnAggregate : string * (data_object Seq.t -> data_object) -> Dataframe.t -> data_object
-    val createRow : Dataframe.t -> string -> (string * (data_object Seq.t -> 'a)) list -> data_object -> 'a list
+    val applyOneColumnAggregate : string * (string -> Dataframe.t -> data_object) -> Dataframe.t -> data_object
+    val createRow : Dataframe.t -> string -> (string * (string -> Dataframe.t -> 'a)) list -> data_object -> 'a list
 end
 
 module Lib_utils : LIB_UTILS = 
@@ -263,8 +263,7 @@ struct
         max_widths
 
     let singleAggregateResult df colName f = 
-        let colValuesSeq = Dataframe.get_column df colName in 
-        (f colValuesSeq)
+        (f colName df)
 
     let isMemOfSeq element seq = Operations.mem element seq
     

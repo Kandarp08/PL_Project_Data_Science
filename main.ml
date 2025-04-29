@@ -6,6 +6,22 @@ open Data_object.DataObject
 
 let main () = 
     begin
+
+        print_endline "\nAggregate: \n";
+
+        let df = Dataframe.load_from_csv "testagg.csv" in
+        let mapping = [("Id", Lib.sum); ("Category", Lib.len); ("Price", Lib.sum)] in
+        let new_df = Lib.groupByAggregate "Category" mapping df in
+        Lib.show_df new_df;
+
+        let rec printlist lst = 
+
+            match lst with
+            | [] -> print_endline "";
+            | h :: t -> print_endline h; printlist t; in
+
+        printlist new_df.headers;
+
         let df = Dataframe.load_from_csv "test1.csv" in
         print_endline "Original df: ";
         Lib.show_df df;
