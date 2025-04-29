@@ -49,19 +49,22 @@ sig
     val sum : string -> Dataframe.t -> data_object
 
     (* Length of a given column of the dataframe *)
-    val len : string -> Dataframe.t -> int
+    val len : string -> Dataframe.t -> data_object
 
     (* Mean of a given integer/float column of the dataframe *)
-    val mean : string -> Dataframe.t -> float
+    val mean : string -> Dataframe.t -> data_object
 
     (* Standard deviation of a given integer/float column of the dataframe *)
-    val stddev : string -> Dataframe.t -> float
+    val stddev : string -> Dataframe.t -> data_object
 
     (* Add a new row to the dataframe *)
     val add_row : Row.t -> Dataframe.t -> Dataframe.t
     
     (* Delete the rows which satisfy a given condition *)
     val delete_row : (Row.t -> bool) -> Dataframe.t -> Dataframe.t
+
+    (* Group the values of a given column, while applying given functions on the column values *)
+    val groupByAggregate : string -> (string * (data_object Seq.t -> data_object)) list -> Dataframe.t -> Dataframe.t
 end
 
 module Lib : LIB

@@ -24,11 +24,12 @@ sig
     val fillna : string -> data_object -> Dataframe.t -> Dataframe.t
     val join : Dataframe.t -> Dataframe.t -> string -> Dataframe.t
     val sum : string -> Dataframe.t -> data_object
-    val len : string -> Dataframe.t -> int
-    val mean : string -> Dataframe.t -> float
-    val stddev : string -> Dataframe.t -> float
+    val len : string -> Dataframe.t -> data_object
+    val mean : string -> Dataframe.t -> data_object
+    val stddev : string -> Dataframe.t -> data_object
     val add_row : Row.t -> Dataframe.t -> Dataframe.t
     val delete_row : (Row.t -> bool) -> Dataframe.t -> Dataframe.t
+    val groupByAggregate : string -> (string * (data_object Seq.t -> data_object)) list -> Dataframe.t -> Dataframe.t
 end
 
 module Lib : LIB = 
@@ -222,7 +223,7 @@ struct
                 Seq.Nil -> curr_len
                 | Seq.Cons(h, t) -> aux t (curr_len + 1) in
 
-        aux column 0
+        INT_DATA (aux column 0)
 
     let mean col_name df = 
 
@@ -231,8 +232,8 @@ struct
         let datatype = List.nth df.dtypes col_idx in 
 
         match datatype with
-        | INT -> Int_util.mean column
-        | FLOAT -> Float_util.mean column
+        | INT -> FLOAT_DATA (Int_util.mean column)
+        | FLOAT -> FLOAT_DATA (Float_util.mean column)
         | _ -> failwith "Inappropriate datatype for mean"
 
     
@@ -243,8 +244,8 @@ struct
         let datatype = List.nth df.dtypes col_idx in 
 
         match datatype with
-        | INT -> Int_util.stddev column
-        | FLOAT -> Float_util.stddev column
+        | INT -> FLOAT_DATA (Int_util.stddev column)
+        | FLOAT -> FLOAT_DATA (Float_util.stddev column)
         | _ -> failwith "Inappropriate datatype for stddev"
 
     let add_row row df = 
@@ -283,4 +284,10 @@ struct
         let new_df = { df with rows = fun () -> aux df.rows } in
 
         new_df
+
+    let groupByAggregate colName colToFnMapping df = 
+        let uniqueValues = (Lib_utils.getUniqueValues df colName) in
+
+        let groupedRows = Operations.map (Lib_utils.createRow df colName colToFnMapping) uniqueValues in
+        Lib_utils.convertRowsToDataframe df groupedRows
 end

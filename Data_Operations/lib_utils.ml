@@ -3,6 +3,10 @@ open Dataframe
 open Data_object
 open Row
 
+open Operations
+open Int_util
+open Float_util
+
 module type LIB_UTILS = 
 sig
     val convert : int -> data_object Seq.t -> data_object Seq.t -> Row.t Seq.t -> Row.t Seq.node
@@ -16,6 +20,21 @@ sig
     val get_rows_as_list : Dataframe.t -> Row.t list
     val joinItemWithList : data_object list -> data_object list list -> string -> Dataframe.t -> Dataframe.t -> data_object list list
     val convertToDataFrame : Row.t list -> Dataframe.t -> Dataframe.t -> Dataframe.t
+
+    val convertRowsToDataframe : Dataframe.t -> Row.t Seq.t -> Dataframe.t
+    val string_of_data_object : data_object -> string
+    val extract_int : data_object -> int
+    val extract_float : data_object -> float
+    val get_int_values : data_object Seq.t -> int Seq.t
+    val get_float_values : data_object Seq.t -> float Seq.t
+    val seq_to_list : data_object Seq.t -> data_object list
+    val get_rows_as_list : Dataframe.t -> Row.t list
+    val compute_column_widths : Dataframe.t -> int list
+    val singleAggregateResult : Dataframe.t -> string -> (data_object Seq.t -> data_object) -> data_object
+    val isMemOfSeq : 'a -> 'a Seq.t -> bool
+    val getUniqueValues : Dataframe.t -> string -> data_object Seq.t
+    val applyOneColumnAggregate : string * (data_object Seq.t -> data_object) -> Dataframe.t -> data_object
+    val createRow : Dataframe.t -> string -> (string * (data_object Seq.t -> 'a)) list -> data_object -> 'a list
 end
 
 module Lib_utils : LIB_UTILS = 
@@ -126,7 +145,7 @@ struct
         in
         aux [] seq
 
-(* Get all rows from a dataframe as a list *)
+    (* Get all rows from a dataframe as a list *)
     let get_rows_as_list df = seq_to_list df.rows
     let rec joinItemWithList item l colName df1 df2 = 
         match l with 
@@ -175,5 +194,111 @@ struct
             rows = List.to_seq rows;
             ncols = List.length combined_headers;
             }
+
+    let convertRowsToDataframe parent_df filtered_rows =
+        (* Create a new dataframe using the parent's headers and datatypes,
+            but with the filtered rows *)
+        
+        {
+            headers = parent_df.headers;
+            dtypes = parent_df.dtypes;
+            rows = filtered_rows;
+            ncols = parent_df.ncols;
+        }
+
+    let string_of_data_object = function
+        | STRING_DATA s -> "STRING: " ^ s
+        | FLOAT_DATA f -> "FLOAT: " ^ string_of_float f
+        | BOOL_DATA b -> "BOOL: " ^ string_of_bool b
+        | CHAR_DATA c -> "CHAR: " ^ String.make 1 c
+        | INT_DATA i -> "INT: " ^ string_of_int i
+        | NULL -> "NULL"
+
+    let extract_int entry = 
+        match entry with 
+        | INT_DATA i -> i
+        | _ -> failwith "Expected an integer value"
+
+    let extract_float entry = 
+        match entry with 
+        | FLOAT_DATA i -> i
+        | INT_DATA i -> float_of_int i
+        | _ -> failwith "Expected a float value"
+
+    let get_int_values seq = 
+        Operations.map (fun entry -> extract_int entry) seq
+
+    let get_float_values seq = 
+        Seq.map (fun entry -> extract_float entry) seq
+
+    let seq_to_list seq =
+
+        let rec aux acc seq =
+            match seq () with
+            | Seq.Nil -> List.rev acc  (* Reverse to maintain original order *)
+            | Seq.Cons (x, rest) -> aux (x :: acc) rest
+        in
+        aux [] seq
+
+    (* Function to convert a data_object to a string representation *)
+    let get_rows_as_list df = seq_to_list df.rows
+
+    let compute_column_widths df =
+        
+        (* Convert sequence to list for easier processing *)
+        let rows_list = get_rows_as_list df in
+        
+        (* For each column, find the max width needed *)
+        let max_widths = List.mapi (fun col_idx header ->
+          let header_width = String.length header in
+          let max_data_width = List.fold_left (fun max_width row ->
+            if col_idx < List.length row then
+              let value_str = string_of_data_object (List.nth row col_idx) in
+              max max_width (String.length value_str)
+            else max_width
+          ) 0 rows_list in
+          max header_width max_data_width
+        ) df.headers in
+        
+        max_widths
+
+    let singleAggregateResult df colName f = 
+        let colValuesSeq = Dataframe.get_column df colName in 
+        (f colValuesSeq)
+
+    let isMemOfSeq element seq = Operations.mem element seq
+    
+    let getUniqueValues df colName = 
+        let allColValues = Dataframe.get_column df colName in
+        let rec unique_helper seenTillNow remaining = 
+          match Seq.uncons remaining with
+          | None -> seenTillNow
+          | Some(first, rest) ->
+            if (isMemOfSeq first seenTillNow) then unique_helper seenTillNow rest
+            else unique_helper (Seq.cons first seenTillNow) rest
+        in
+      
+        unique_helper Seq.empty allColValues
+
+        
+    let applyOneColumnAggregate mapping df = 
+        match mapping with
+        | (colName, f) -> singleAggregateResult df colName f
+
+    let createRow df colName colToFnMapping value = 
+        let isRowValueEqualToValue value colName row =
+            let colIndex = Dataframe.get_column_index df colName in
+            if (0 < colIndex && colIndex < (List.length df.headers)) then 
+                let currValue = List.nth row colIndex in
+                currValue = value
+            else  failwith "columnIndex out of bounds"
+        in
+        
+        let filteredRowsByValue = Operations.filter (fun row -> isRowValueEqualToValue value colName row) df.rows in
+        
+        let filtered_df = convertRowsToDataframe df filteredRowsByValue in
+        let outputRow = List.map (fun mapping -> applyOneColumnAggregate mapping filtered_df) colToFnMapping in
+        
+        outputRow
 
 end
