@@ -16,25 +16,25 @@ sig
     val findValueHelper : int -> 'a list -> int -> 'a
     val findValue : string -> 'a list -> Dataframe.t -> 'a
     val mergeIntoSingleRecord : data_object list -> data_object list -> string -> Dataframe.t -> Dataframe.t -> data_object list
-    val seq_to_list : 'a Seq.t -> 'a list
     val get_rows_as_list : Dataframe.t -> Row.t list
     val joinItemWithList : data_object list -> data_object list list -> string -> Dataframe.t -> Dataframe.t -> data_object list list
     val convertToDataFrame : Row.t list -> Dataframe.t -> Dataframe.t -> Dataframe.t
-
     val convertRowsToDataframe : Dataframe.t -> Row.t Seq.t -> Dataframe.t
     val string_of_data_object : data_object -> string
     val extract_int : data_object -> int
     val extract_float : data_object -> float
     val get_int_values : data_object Seq.t -> int Seq.t
     val get_float_values : data_object Seq.t -> float Seq.t
-    val seq_to_list : data_object Seq.t -> data_object list
+    val seq_to_list : 'a Seq.t -> 'a list
     val get_rows_as_list : Dataframe.t -> Row.t list
-    val compute_column_widths : Dataframe.t -> int list
     val singleAggregateResult : Dataframe.t -> string -> (string -> Dataframe.t -> data_object) -> data_object
     val isMemOfSeq : 'a -> 'a Seq.t -> bool
     val getUniqueValues : Dataframe.t -> string -> data_object Seq.t
     val applyOneColumnAggregate : string * (string -> Dataframe.t -> data_object) -> Dataframe.t -> data_object
     val createRow : Dataframe.t -> string -> (string * (string -> Dataframe.t -> 'a)) list -> data_object -> 'a list
+    val compute_column_widths : Dataframe.t -> int list
+    val print_separator : int list -> unit
+    val string_of_data_object : data_object -> string
 end
 
 module Lib_utils : LIB_UTILS = 
@@ -144,9 +144,7 @@ struct
             | Seq.Cons (x, rest) -> aux (x :: acc) rest
         in
         aux [] seq
-
-    (* Get all rows from a dataframe as a list *)
-    let get_rows_as_list df = seq_to_list df.rows
+        
     let rec joinItemWithList item l colName df1 df2 = 
         match l with 
         [] -> []
@@ -231,36 +229,8 @@ struct
     let get_float_values seq = 
         Seq.map (fun entry -> extract_float entry) seq
 
-    let seq_to_list seq =
-
-        let rec aux acc seq =
-            match seq () with
-            | Seq.Nil -> List.rev acc  (* Reverse to maintain original order *)
-            | Seq.Cons (x, rest) -> aux (x :: acc) rest
-        in
-        aux [] seq
-
     (* Function to convert a data_object to a string representation *)
     let get_rows_as_list df = seq_to_list df.rows
-
-    let compute_column_widths df =
-        
-        (* Convert sequence to list for easier processing *)
-        let rows_list = get_rows_as_list df in
-        
-        (* For each column, find the max width needed *)
-        let max_widths = List.mapi (fun col_idx header ->
-          let header_width = String.length header in
-          let max_data_width = List.fold_left (fun max_width row ->
-            if col_idx < List.length row then
-              let value_str = string_of_data_object (List.nth row col_idx) in
-              max max_width (String.length value_str)
-            else max_width
-          ) 0 rows_list in
-          max header_width max_data_width
-        ) df.headers in
-        
-        max_widths
 
     let singleAggregateResult df colName f = 
         (f colName df)
@@ -300,4 +270,48 @@ struct
         
         outputRow
 
+    let seq_to_list (seq : 'a Seq.t) : 'a list =
+        let rec aux acc seq =
+            match seq () with
+            | Seq.Nil -> List.rev acc  (* Reverse to maintain original order *)
+            | Seq.Cons (x, rest) -> aux (x :: acc) rest
+        in
+        aux [] seq
+
+    (* Function to convert a data_object to a string representation *)
+    let get_rows_as_list df = seq_to_list df.rows
+
+    (* Function to find the maximum width needed for each column *)
+    let compute_column_widths df =
+        
+        (* Convert sequence to list for easier processing *)
+        let rows_list = get_rows_as_list df in
+        
+        (* For each column, find the max width needed *)
+        let max_widths = List.mapi (fun col_idx header ->
+            let header_width = String.length header in
+            let max_data_width = List.fold_left (fun max_width row ->
+            if col_idx < List.length row then
+                let value_str = string_of_data_object (List.nth row col_idx) in
+                max max_width (String.length value_str)
+            else max_width
+            ) 0 rows_list in
+            max header_width max_data_width
+        ) df.headers in
+        
+        max_widths
+
+    (* Print a horizontal separator line *)
+    let print_separator widths =
+        print_string "+";
+        List.iter (fun w -> print_string (String.make (w + 2) '-'); print_string "+") widths;
+        print_newline ()
+
+    let string_of_data_object = function
+        | STRING_DATA s -> "STRING: " ^ s
+        | FLOAT_DATA f -> "FLOAT: " ^ string_of_float f
+        | BOOL_DATA b -> "BOOL: " ^ string_of_bool b
+        | CHAR_DATA c -> "CHAR: " ^ String.make 1 c
+        | INT_DATA i -> "INT: " ^ string_of_int i
+        | NULL -> "NULL"
 end

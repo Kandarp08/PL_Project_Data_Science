@@ -27,9 +27,6 @@ sig
     val mergeIntoSingleRecord : data_object list -> data_object list -> string -> Dataframe.t -> Dataframe.t -> data_object list
     
     (**)
-    val seq_to_list : 'a Seq.t -> 'a list
-    
-    (**)
     val get_rows_as_list : Dataframe.t -> Row.t list
     
     (**)
@@ -57,13 +54,10 @@ sig
     val get_float_values : data_object Seq.t -> float Seq.t
     
     (**)
-    val seq_to_list : data_object Seq.t -> data_object list
+    val seq_to_list : 'a Seq.t -> 'a list
     
     (**)
     val get_rows_as_list : Dataframe.t -> Row.t list
-    
-    (**)
-    val compute_column_widths : Dataframe.t -> int list
     
     (**)
     val singleAggregateResult : Dataframe.t -> string -> (string -> Dataframe.t -> data_object) -> data_object
@@ -79,6 +73,14 @@ sig
     
     (**)
     val createRow : Dataframe.t -> string -> (string * (string -> Dataframe.t -> 'a)) list -> data_object -> 'a list
+
+    (**)
+    val compute_column_widths : Dataframe.t -> int list
+
+    (**)
+    val print_separator : int list -> unit
+
+    val string_of_data_object : data_object -> string
 end
 
 module Lib_utils : LIB_UTILS

@@ -35,7 +35,39 @@ end
 module Lib : LIB = 
 struct
 
-    let show_df df = Seq.iter Row.display_row df.rows
+    let show_df df = 
+
+        (* If the dataframe is empty, show a message *)
+        if df.headers = [] then
+            print_endline "Empty dataframe"
+        else
+            let col_widths = Lib_utils.compute_column_widths df in
+            
+            (* Print the header row *)
+            Lib_utils.print_separator col_widths;
+            print_string "| ";
+            List.iter2 (fun header width ->
+            Printf.printf "%-*s | " width header
+            ) df.headers col_widths;
+            print_newline ();
+            Lib_utils.print_separator col_widths;
+            
+            (* Print each data row *)
+            let rows_list = Lib_utils.get_rows_as_list df in
+            List.iter (fun row ->
+            print_string "| ";
+            List.iteri (fun i cell ->
+                if i < List.length col_widths then
+                let width = List.nth col_widths i in
+                Printf.printf "%-*s | " width (Lib_utils.string_of_data_object cell)
+            ) row;
+            print_newline ()
+            ) rows_list;
+            Lib_utils.print_separator col_widths;
+            
+            (* Print dataframe summary *)
+            Printf.printf "Dataframe with %d columns and %d rows\n" 
+            df.ncols (List.length rows_list)
 
     let map f col_name df = 
 
