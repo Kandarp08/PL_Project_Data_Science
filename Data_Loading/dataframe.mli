@@ -36,9 +36,6 @@ module Dataframe : sig
   (** Load a dataframe from a CSV file *)
   val load_from_csv : string -> dataframe
 
-  (** Load a dataframe from a CSV file with tab as a separator *)
-  val load_from_tsv : string -> dataframe
-
   (** Load a dataframe from a JSON file *)
   val load_from_json : string -> dataframe
 

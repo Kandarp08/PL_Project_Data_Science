@@ -67,7 +67,6 @@ module Dataframe = struct
     }
 
     let load_from_csv = load_from_file ","
-    let load_from_tsv = load_from_file "\t"
 
     let load_from_json filepath = 
       let file = open_in filepath in
