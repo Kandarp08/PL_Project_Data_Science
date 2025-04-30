@@ -5,10 +5,10 @@ open Row
 
 module type LIB_UTILS = 
 sig
-    (* Given a Dataframe.t, replaces the elements of a given column with new values *)
+    (* Given a dataframe, returns a new dataframe in which values of a given column are replaced by new ones *)
     val convert : int -> data_object Seq.t -> data_object Seq.t -> Row.t Seq.t -> Row.t Seq.node
     
-    (* Given a Dataframe.t, filters the elements of a given column based on a predicate function *)
+    (* Given a dataframe, returns a new dataframe which contains only the filtered rows *)
     val filter_rows : int -> data_object Seq.t -> data_object Seq.t -> Row.t Seq.t -> Row.t Seq.node
     
     (**)
@@ -80,6 +80,7 @@ sig
     (**)
     val print_separator : int list -> unit
 
+    (**)
     val string_of_data_object : data_object -> string
 end
 

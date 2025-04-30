@@ -24,10 +24,10 @@ sig
     (* Find a given element in a particular column of the dataframe *)
     val mem : string -> data_object -> Dataframe.t -> bool
 
-    (* Update value of accumulator value by repeatedly applying a function *)    
+    (* Update value of accumulator by repeatedly applying a function *)    
     val fold_left : string -> (data_object -> data_object -> data_object) -> data_object -> Dataframe.t -> data_object
     
-    (* Update value of accumulator value by repeatedly applying a function *)
+    (* Update value of accumulator by repeatedly applying a function *)
     val fold_right : string -> (data_object -> data_object -> data_object) -> data_object -> Dataframe.t -> data_object
     
     (* Standardization of a given column of the dataframe *)
