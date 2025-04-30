@@ -79,7 +79,6 @@ module Dataframe = struct
         close_in file;
         acc in
       let json_string = iter "" in
-      let _ = print_string ("Hello: " ^ json_string) in
       let json_obj = 
         try JSON.parse json_string 
         with _ -> failwith ("Failed to parse JSON") in
