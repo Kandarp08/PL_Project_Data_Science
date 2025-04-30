@@ -101,7 +101,8 @@ module JSON = struct
       if i < String.length str && str.[i] = '.' then
         let i = i + 1 in
         if i >= String.length str || str.[i] < '0' || str.[i] > '9' then
-          failwith "Expected digit after decimal point"
+          (* Assume zero if no digit after decimal point *)
+          (i, acc ^ ".0")
         else
           let (i', digits) = consume_digits str i "" in
           (i', acc ^ "." ^ digits)
