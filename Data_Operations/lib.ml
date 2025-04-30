@@ -29,6 +29,7 @@ sig
     val stddev : string -> Dataframe.t -> data_object
     val add_row : Row.t -> Dataframe.t -> Dataframe.t
     val delete_row : (Row.t -> bool) -> Dataframe.t -> Dataframe.t
+    val update_row : (Row.t -> bool) -> (Row.t -> Row.t) -> Dataframe.t -> Dataframe.t
     val groupByAggregate : string -> (string * (string -> Dataframe.t -> data_object)) list -> Dataframe.t -> Dataframe.t
 end
 
@@ -311,6 +312,41 @@ struct
 
                 (* Delete row if function f returns true *)
                 if f curr_row then aux rowt
+                else Seq.Cons(curr_row, fun () -> aux rowt) in
+
+        let new_df = { df with rows = fun () -> aux df.rows } in
+
+        new_df
+
+    let update_row f update df = 
+
+        (* Check whether data types of new row elements are appropriate or not *)
+        let rec validate_row row dtypes = 
+
+            match (row, dtypes) with 
+            | ([], []) -> true
+            | ([], _) -> false
+            | (_, []) -> false
+            | (obj :: objt, dt :: dtt) ->
+
+                if (Data_object.DataObject.get_datatype obj) <> dt then false
+                else validate_row objt dtt in
+
+        let rec aux row = 
+
+            match row () with
+            | Seq.Nil -> Seq.Nil
+            | Seq.Cons(curr_row, rowt) ->
+
+                if f curr_row then 
+
+                    let updated_row = update curr_row in 
+
+                    if validate_row updated_row df.dtypes then
+                        Seq.Cons(updated_row, fun () -> aux rowt)
+
+                    else failwith "Data types of updated row do not match the data types of dataframe"
+                
                 else Seq.Cons(curr_row, fun () -> aux rowt) in
 
         let new_df = { df with rows = fun () -> aux df.rows } in

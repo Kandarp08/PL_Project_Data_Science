@@ -7,20 +7,41 @@ open Data_object.DataObject
 let main () = 
     begin
 
+        let df = Dataframe.load_from_csv "testagg.csv" in
+
+        let f row = 
+
+            match List.nth row 1 with
+            | STRING_DATA ("Electronics") -> true
+            | _ -> false in
+
+        let update_row row = 
+
+            let new_row = Array.of_list row in
+
+            let get_float data = 
+
+                match data with 
+                | FLOAT_DATA x -> x
+                | _ -> failwith "Expected float value" in
+
+            new_row.(2) <- FLOAT_DATA ((get_float new_row.(2)) +. 100.); 
+
+            Array.to_list new_row in
+
+        print_endline "\nUpdate row: \n";
+
+        let new_df = Lib.update_row f update_row df in
+        Lib.show_df new_df;
+
+        print_endline "\n";
+
         print_endline "\nAggregate: \n";
 
         let df = Dataframe.load_from_csv "testagg.csv" in
         let mapping = [("Id", Lib.sum); ("Category", Lib.len); ("Price", Lib.sum)] in
         let new_df = Lib.groupByAggregate "Category" mapping df in
         Lib.show_df new_df;
-
-        let rec printlist lst = 
-
-            match lst with
-            | [] -> print_endline "";
-            | h :: t -> print_endline h; printlist t; in
-
-        printlist new_df.headers;
 
         let df = Dataframe.load_from_csv "test1.csv" in
         print_endline "Original df: ";
@@ -48,7 +69,6 @@ let main () =
 
         print_endline "Map function (x + 10): ";
         Lib.show_df new_df;
-        Dataframe.to_csv new_df "testk.csv";
 
         let new_df = Lib.normalize "Age" df in
         print_endline "Normalize: ";

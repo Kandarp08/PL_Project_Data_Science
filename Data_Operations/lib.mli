@@ -63,6 +63,9 @@ sig
     (* Delete the rows which satisfy a given condition *)
     val delete_row : (Row.t -> bool) -> Dataframe.t -> Dataframe.t
 
+    (* Update the rows of the dataframe that satisfy a given condition *)
+    val update_row : (Row.t -> bool) -> (Row.t -> Row.t) -> Dataframe.t -> Dataframe.t
+
     (* Group the values of a given column, while applying given functions on the column values *)
     val groupByAggregate : string -> (string * (string -> Dataframe.t -> data_object)) list -> Dataframe.t -> Dataframe.t
 end
