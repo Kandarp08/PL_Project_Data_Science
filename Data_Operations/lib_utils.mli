@@ -3,6 +3,10 @@ open Dataframe
 open Data_object
 open Row
 
+open Operations
+open Int_util
+open Float_util
+
 module type LIB_UTILS = 
 sig
     (* Given a dataframe, returns a new dataframe in which values of a given column are replaced by new ones *)
