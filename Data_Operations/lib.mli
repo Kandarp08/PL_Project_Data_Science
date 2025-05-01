@@ -68,6 +68,12 @@ sig
 
     (* Group the values of a given column, while applying given functions on the column values *)
     val groupByAggregate : string -> (string * (string -> Dataframe.t -> data_object)) list -> Dataframe.t -> Dataframe.t
+
+    (* Get rows of a dataframe by providing range of row indices *)
+    val iloc : int -> int -> Dataframe.t -> Dataframe.t
+
+    (* Get rows of a dataframe by providing range of row labels *)
+    val loc : string -> string -> string -> Dataframe.t -> Dataframe.t
 end
 
 module Lib : LIB

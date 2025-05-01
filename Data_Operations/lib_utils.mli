@@ -7,6 +7,14 @@ open Operations
 open Int_util
 open Float_util
 
+type dataframeLoc = {
+    lheaders: string list;
+    ldtypes: datatype list;
+    lrows: Row.t Seq.t;
+    lncols: int;
+    lindices: (string, int) Hashtbl.t option; (* Maps row labels to row indices *)
+}
+
 module type LIB_UTILS = 
 sig
     (* Given a dataframe, returns a new dataframe in which values of a given column are replaced by new ones *)
@@ -41,9 +49,9 @@ sig
 
     (**)
     val convertRowsToDataframe : Dataframe.t -> Row.t Seq.t -> Dataframe.t
-    
+
     (**)
-    val string_of_data_object : data_object -> string
+    val convertRowsToDataframeLoc : dataframeLoc -> Row.t Seq.t -> Dataframe.t
     
     (**)
     val extract_int : data_object -> int
@@ -59,9 +67,6 @@ sig
     
     (**)
     val seq_to_list : 'a Seq.t -> 'a list
-    
-    (**)
-    val get_rows_as_list : Dataframe.t -> Row.t list
     
     (**)
     val singleAggregateResult : Dataframe.t -> string -> (string -> Dataframe.t -> data_object) -> data_object
@@ -86,6 +91,12 @@ sig
 
     (**)
     val string_of_data_object : data_object -> string
+
+    (**)
+    val iloc_helper : 'a Seq.t -> int -> int -> int -> 'a Seq.t -> bool -> (bool * 'a Seq.t)
+
+    (**)
+    val set_index : string -> Dataframe.t -> dataframeLoc
 end
 
 module Lib_utils : LIB_UTILS

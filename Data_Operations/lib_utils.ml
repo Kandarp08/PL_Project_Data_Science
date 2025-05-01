@@ -7,6 +7,15 @@ open Operations
 open Int_util
 open Float_util
 
+type dataframeLoc = {
+    lheaders: string list;
+    ldtypes: datatype list;
+    lrows: Row.t Seq.t;
+    lncols: int;
+    lindices: (string, int) Hashtbl.t option; (* Maps row labels to row indices *)
+}
+
+
 module type LIB_UTILS = 
 sig
     val convert : int -> data_object Seq.t -> data_object Seq.t -> Row.t Seq.t -> Row.t Seq.node
@@ -20,13 +29,12 @@ sig
     val joinItemWithList : data_object list -> data_object list list -> string -> Dataframe.t -> Dataframe.t -> data_object list list
     val convertToDataFrame : Row.t list -> Dataframe.t -> Dataframe.t -> Dataframe.t
     val convertRowsToDataframe : Dataframe.t -> Row.t Seq.t -> Dataframe.t
-    val string_of_data_object : data_object -> string
+    val convertRowsToDataframeLoc : dataframeLoc -> Row.t Seq.t -> Dataframe.t
     val extract_int : data_object -> int
     val extract_float : data_object -> float
     val get_int_values : data_object Seq.t -> int Seq.t
     val get_float_values : data_object Seq.t -> float Seq.t
     val seq_to_list : 'a Seq.t -> 'a list
-    val get_rows_as_list : Dataframe.t -> Row.t list
     val singleAggregateResult : Dataframe.t -> string -> (string -> Dataframe.t -> data_object) -> data_object
     val isMemOfSeq : 'a -> 'a Seq.t -> bool
     val getUniqueValues : Dataframe.t -> string -> data_object Seq.t
@@ -35,6 +43,8 @@ sig
     val compute_column_widths : Dataframe.t -> int list
     val print_separator : int list -> unit
     val string_of_data_object : data_object -> string
+    val iloc_helper : 'a Seq.t -> int -> int -> int -> 'a Seq.t -> bool -> (bool * 'a Seq.t)
+    val set_index : string -> Dataframe.t -> dataframeLoc
 end
 
 module Lib_utils : LIB_UTILS = 
@@ -153,12 +163,17 @@ struct
     let convertToDataFrame rows df1 df2  =
         (* If no rows, return an empty dataframe with combined headers *)
         if rows = [] then 
+
+            let new_df : Dataframe.t = 
             { 
             headers = [];
             dtypes = [];
             rows = Seq.empty;
             ncols = 0;
-            }
+            } in
+
+            new_df
+
         else
             (* Create combined headers by removing duplicates of the join column *)
             let combined_headers = 
@@ -186,31 +201,38 @@ struct
             in
             
             (* Return the new dataframe *)
+            let new_df : Dataframe.t = 
             {
             headers = combined_headers;
             dtypes = combined_dtypes;
             rows = List.to_seq rows;
             ncols = List.length combined_headers;
-            }
+            } in
+
+            new_df
 
     let convertRowsToDataframe parent_df filtered_rows =
         (* Create a new dataframe using the parent's headers and datatypes,
             but with the filtered rows *)
         
+        let df : Dataframe.t = 
         {
             headers = parent_df.headers;
             dtypes = parent_df.dtypes;
             rows = filtered_rows;
             ncols = parent_df.ncols;
-        }
+        } in 
 
-    let string_of_data_object = function
-        | STRING_DATA s -> "STRING: " ^ s
-        | FLOAT_DATA f -> "FLOAT: " ^ string_of_float f
-        | BOOL_DATA b -> "BOOL: " ^ string_of_bool b
-        | CHAR_DATA c -> "CHAR: " ^ String.make 1 c
-        | INT_DATA i -> "INT: " ^ string_of_int i
-        | NULL -> "NULL"
+        df
+
+    
+    let convertRowsToDataframeLoc parent_df filtered_rows =
+        {
+            headers = parent_df.lheaders;
+            dtypes = parent_df.ldtypes;
+            rows = filtered_rows;
+            ncols = parent_df.lncols;
+        }
 
     let extract_int entry = 
         match entry with 
@@ -270,16 +292,14 @@ struct
         
         outputRow
 
-    let seq_to_list (seq : 'a Seq.t) : 'a list =
-        let rec aux acc seq =
-            match seq () with
-            | Seq.Nil -> List.rev acc  (* Reverse to maintain original order *)
-            | Seq.Cons (x, rest) -> aux (x :: acc) rest
-        in
-        aux [] seq
-
-    (* Function to convert a data_object to a string representation *)
-    let get_rows_as_list df = seq_to_list df.rows
+        
+    let string_of_data_object = function
+    | STRING_DATA s -> "STRING: " ^ s
+    | FLOAT_DATA f -> "FLOAT: " ^ string_of_float f
+    | BOOL_DATA b -> "BOOL: " ^ string_of_bool b
+    | CHAR_DATA c -> "CHAR: " ^ String.make 1 c
+    | INT_DATA i -> "INT: " ^ string_of_int i
+    | NULL -> "NULL"
 
     (* Function to find the maximum width needed for each column *)
     let compute_column_widths df =
@@ -307,11 +327,55 @@ struct
         List.iter (fun w -> print_string (String.make (w + 2) '-'); print_string "+") widths;
         print_newline ()
 
-    let string_of_data_object = function
-        | STRING_DATA s -> "STRING: " ^ s
-        | FLOAT_DATA f -> "FLOAT: " ^ string_of_float f
-        | BOOL_DATA b -> "BOOL: " ^ string_of_bool b
-        | CHAR_DATA c -> "CHAR: " ^ String.make 1 c
-        | INT_DATA i -> "INT: " ^ string_of_int i
-        | NULL -> "NULL"
+    let rec iloc_helper rows startIndex endIndex currIndex ans reachedEnd = 
+        if (startIndex < 0 || endIndex < 0) then failwith "negative indices"
+        else if (startIndex > endIndex) then failwith "startIndex must be less than or equal to the endIndex"
+        else
+            match (Seq.uncons rows) with
+            | Some(row, rest) ->
+            if (currIndex > endIndex)  then (true, ans)
+            else if (startIndex <= currIndex && currIndex <= endIndex) then iloc_helper rest startIndex endIndex (currIndex+1) (Seq.append ans (List.to_seq [row])) reachedEnd
+            else (iloc_helper rest startIndex endIndex (currIndex+1) ans reachedEnd)
+            | None -> 
+            (currIndex > endIndex, ans)
+
+    let rec index_of item lst =
+        let rec aux i = function
+            | [] -> -1
+            | h :: t -> if h = item then i else aux (i + 1) t
+        in
+        aux 0 lst
+
+    let set_index column_name df =
+        (* Find the column index for the specified column name *)
+        let col_idx = index_of column_name df.headers in
+        if col_idx = -1 then
+            failwith (Printf.sprintf "Column '%s' not found" column_name)
+        else
+            (* Create a new hashtable to store the indices *)
+            let indices = Hashtbl.create 16 in
+            
+            (* Convert rows to list for easier indexing *)
+            let rows_list = seq_to_list df.rows in
+            
+            (* Fill the hashtable with row labels and their indices *)
+            List.iteri (fun row_idx row ->
+            match List.nth_opt row col_idx with
+            | Some (STRING_DATA label) -> Hashtbl.add indices label row_idx
+            | Some data_obj -> 
+                (* Convert other data types to string and use as label *)
+                let label = string_of_data_object data_obj in
+                Hashtbl.add indices label row_idx
+            | None -> () (* Skip if the column doesn't exist in this row *)
+            ) rows_list;
+            
+            (* Create a new dataframe with the indices *)
+            { 
+                lheaders = df.headers;
+                ldtypes = df.dtypes;
+                lrows = List.to_seq rows_list; (* Convert back to seq *)
+                lncols = df.ncols;
+                lindices = Some indices;
+            } 
+
 end

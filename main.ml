@@ -39,7 +39,7 @@ let main () =
         print_endline "\nAggregate: \n";
 
         let df = Dataframe.load_from_csv "testagg.csv" in
-        let mapping = [("Id", Lib.sum); ("Category", Lib.len); ("Price", Lib.sum)] in
+        let mapping = [("Id", Lib.sum); ("Category", Lib.len); ("Price", Lib.mean)] in
         let new_df = Lib.groupByAggregate "Category" mapping df in
         Lib.show_df new_df;
 

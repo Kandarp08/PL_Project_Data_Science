@@ -31,6 +31,8 @@ sig
     val delete_row : (Row.t -> bool) -> Dataframe.t -> Dataframe.t
     val update_row : (Row.t -> bool) -> (Row.t -> Row.t) -> Dataframe.t -> Dataframe.t
     val groupByAggregate : string -> (string * (string -> Dataframe.t -> data_object)) list -> Dataframe.t -> Dataframe.t
+    val iloc : int -> int -> Dataframe.t -> Dataframe.t
+    val loc : string -> string -> string -> Dataframe.t -> Dataframe.t
 end
 
 module Lib : LIB = 
@@ -358,4 +360,41 @@ struct
 
         let groupedRows = Operations.map (Lib_utils.createRow df colName colToFnMapping) uniqueValues in
         Lib_utils.convertRowsToDataframe df groupedRows
+
+    let iloc startIndex endIndex df = 
+        if startIndex < 0 then failwith "startIndex cannot be negative"
+        else if endIndex < 0 then failwith "endIndex cannot be negative"  
+        else if startIndex > endIndex then failwith "startIndex must be less than or equal to endIndex"
+        else
+            let (reachedEnd, outputRows) = Lib_utils.iloc_helper df.rows startIndex endIndex 0 Seq.empty false in
+            if not reachedEnd then
+            failwith (Printf.sprintf "endIndex %d is out of bounds for sequence" endIndex)
+            else
+            Lib_utils.convertRowsToDataframe df outputRows
+
+    let iloc_loc startIndex endIndex df = 
+        if startIndex < 0 then failwith "startIndex cannot be negative"
+        else if endIndex < 0 then failwith "endIndex cannot be negative"  
+        else if startIndex > endIndex then failwith "startIndex must be less than or equal to endIndex"
+        else
+            let (reachedEnd, outputRows) = Lib_utils.iloc_helper df.lrows startIndex endIndex 0 Seq.empty false in
+            if not reachedEnd then
+            failwith (Printf.sprintf "endIndex %d is out of bounds for sequence" endIndex)
+            else
+            Lib_utils.convertRowsToDataframeLoc df outputRows
+
+    let loc colName startLabel endLabel df = 
+
+        let indexed_df = Lib_utils.set_index colName df in
+
+        match indexed_df.lindices with
+        | None -> failwith "Dataframe has no index set"
+        | Some lindices ->
+            try
+                let start_idx = Hashtbl.find lindices startLabel in
+                let end_idx = Hashtbl.find lindices endLabel in
+
+                iloc_loc start_idx end_idx indexed_df  (* REUSING MY EXISTING FUNCTION *)
+                with Not_found ->
+                failwith "One or more labels not found in index"
 end
