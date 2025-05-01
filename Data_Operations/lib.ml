@@ -38,6 +38,10 @@ end
 module Lib : LIB = 
 struct
 
+    (* Displays the dataframe contents in a formatted tabular representation.
+   Shows column headers, data rows, and a summary of dimensions.
+   If dataframe is empty, shows "Empty dataframe" message.
+   Uses compute_column_widths and print_separator for formatting. *)
     let show_df df = 
 
         (* If the dataframe is empty, show a message *)
@@ -71,7 +75,7 @@ struct
             (* Print dataframe summary *)
             Printf.printf "Dataframe with %d columns and %d rows\n" 
             df.ncols (List.length rows_list)
-
+            
     let map f col_name df = 
 
         let col_idx = Dataframe.get_column_index df col_name in
@@ -106,6 +110,9 @@ struct
 
         new_df
 
+    (* Checks if an element exists in a specified column of the dataframe.
+   Returns true if element is found, false otherwise.
+   Delegates to Operations.mem for the actual membership check. *)
     let mem col_name el df = 
 
         let column = Dataframe.get_column df col_name in
@@ -118,6 +125,7 @@ struct
 
         Operations.fold_left f init column
 
+    
     let fold_right col_name f init df = 
 
         let column = Dataframe.get_column df col_name in
@@ -208,6 +216,10 @@ struct
 
         new_df
 
+    (* Joins two dataframes based on matching values in a specified column.
+   Similar to SQL inner join operation.
+   Returns a new dataframe with combined schema and joined rows.
+   Filters out empty lists (non-matches) from the results. *)
     let rec join df1 df2 colName =
         let l1 = df1.rows in
         let l2 = df2.rows in
@@ -225,6 +237,9 @@ struct
         
         Lib_utils.convertToDataFrame finalJoinedList df1 df2
 
+    (* Calculates the sum of values in a numeric column.
+   Only works with INT or FLOAT columns.
+   Returns the result as the appropriate data_object type. *)
     let sum col_name df = 
 
         let col_idx = Dataframe.get_column_index df col_name in
@@ -236,6 +251,9 @@ struct
         | FLOAT -> FLOAT_DATA (Float_util.sum column)
         | _ -> failwith "Inappropriate datatype for sum"
 
+    (* Counts the number of elements in a specified column.
+   Returns the count as an INT_DATA value.
+   Uses a recursive auxiliary function to perform the counting. *)
     let len col_name df = 
 
         let column = Dataframe.get_column df col_name in  
@@ -247,6 +265,9 @@ struct
 
         INT_DATA (aux column 0)
 
+    (* Calculates the mean of values in a numeric column.
+   Only works with INT or FLOAT columns.
+   Returns the result as a FLOAT_DATA value. *)
     let mean col_name df = 
 
         let col_idx = Dataframe.get_column_index df col_name in
@@ -258,7 +279,9 @@ struct
         | FLOAT -> FLOAT_DATA (Float_util.mean column)
         | _ -> failwith "Inappropriate datatype for mean"
 
-    
+    (* Calculates the standard deviation of values in a numeric column.
+   Only works with INT or FLOAT columns.
+   Returns the result as a FLOAT_DATA value. *)
     let stddev col_name df = 
 
         let col_idx = Dataframe.get_column_index df col_name in
@@ -342,12 +365,20 @@ struct
 
         new_df
 
+    (* Groups data by unique values in a specified column and applies aggregation functions.
+   Gets unique values in the grouping column.
+   Creates new rows by applying aggregation functions to each group.
+   Returns a new dataframe with the aggregated results. *)
     let groupByAggregate colName colToFnMapping df = 
         let uniqueValues = (Lib_utils.getUniqueValues df colName) in
 
         let groupedRows = Operations.map (Lib_utils.createRow df colName colToFnMapping) uniqueValues in
         Lib_utils.convertRowsToDataframe df groupedRows
 
+    (* Extracts rows from the dataframe based on integer indices.
+   Returns a new dataframe with rows from startIndex to endIndex inclusive.
+   Throws errors for invalid indices or out-of-bounds conditions.
+   Uses iloc_helper to perform the extraction. *)
     let iloc startIndex endIndex df = 
         if startIndex < 0 then failwith "startIndex cannot be negative"
         else if endIndex < 0 then failwith "endIndex cannot be negative"  
@@ -359,6 +390,8 @@ struct
             else
             Lib_utils.convertRowsToDataframe df outputRows
 
+    (* Similar to iloc but for dataframeLoc type.
+   Internal function used by loc to extract rows by index after label lookup. *)
     let iloc_loc startIndex endIndex df = 
         if startIndex < 0 then failwith "startIndex cannot be negative"
         else if endIndex < 0 then failwith "endIndex cannot be negative"  
@@ -370,6 +403,11 @@ struct
             else
             Lib_utils.convertRowsToDataframeLoc df outputRows
 
+    (* Extracts rows from the dataframe based on labels in an indexed column.
+   First creates an indexed dataframe using the specified column.
+   Looks up indices for the start and end labels.
+   Uses iloc_loc to extract the rows based on these indices.
+   Throws error if labels not found or index not set. *)
     let loc colName startLabel endLabel df = 
 
         let indexed_df = Lib_utils.set_index colName df in
