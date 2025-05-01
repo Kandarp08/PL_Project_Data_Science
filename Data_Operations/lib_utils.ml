@@ -50,6 +50,14 @@ end
 module Lib_utils : LIB_UTILS = 
 struct
 
+    let rec update_pos l new_el pos curr_pos = 
+
+        match l with 
+        | [] -> []
+        | h :: t -> 
+            if pos = curr_pos then new_el :: t
+            else h :: update_pos t new_el pos (curr_pos + 1)
+
     let rec convert col_idx mapped_column original_column original_row = 
                     
         (* Sequence containing new values *)
@@ -68,9 +76,7 @@ struct
                 | Seq.Cons(rowh, rowt) ->
 
                     (* Change the element at index col_idx *)
-                    let old_row = Array.of_list rowh in
-                    old_row.(col_idx) <- h';
-                    let new_row = (Array.to_list old_row) in
+                    let new_row = update_pos rowh h' col_idx 0 in
 
                     Seq.Cons(new_row, fun () -> convert col_idx t' t rowt)
 
