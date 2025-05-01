@@ -396,7 +396,7 @@ struct
             else if (startIndex <= currIndex && currIndex <= endIndex) then iloc_helper rest startIndex endIndex (currIndex+1) (Seq.append ans (List.to_seq [row])) reachedEnd
             else (iloc_helper rest startIndex endIndex (currIndex+1) ans reachedEnd)
             | None -> 
-            (currIndex > endIndex, and)
+            (currIndex > endIndex, ans)
     
     
     let rec index_of item lst =
