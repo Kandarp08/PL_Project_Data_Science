@@ -1,11 +1,13 @@
 DATA_LOADING_PATH = Data_Loading
 DATA_OPERATIONS_PATH = Data_Operations
+BENCHMARK_PATH = Benchmark
 
 OCAMLC = ocamlc
 OCAMLFLAGS = -I $(DATA_LOADING_PATH) \
-			 -I $(DATA_OPERATIONS_PATH) \
-			 -I $(DATA_OPERATIONS_PATH)/utils -I $(DATA_OPERATIONS_PATH)/operations \
-			 -I $(DATA_OPERATIONS_PATH)/transformations
+             -I $(DATA_OPERATIONS_PATH) \
+             -I $(DATA_OPERATIONS_PATH)/utils -I $(DATA_OPERATIONS_PATH)/operations \
+             -I $(DATA_OPERATIONS_PATH)/transformations \
+             -I $(BENCHMARK_PATH)
 
 # File paths (Data Loading)
 DATA_LOADING_UTILS = $(DATA_LOADING_PATH)/utils
@@ -18,10 +20,11 @@ DATAFRAME = $(DATA_LOADING_PATH)/dataframe
 UTILS = $(DATA_OPERATIONS_PATH)/utils/int_util $(DATA_OPERATIONS_PATH)/utils/float_util
 OPERATIONS = $(DATA_OPERATIONS_PATH)/operations/operations
 TRANSFORM = $(DATA_OPERATIONS_PATH)/transformations/int_transformations \
-			$(DATA_OPERATIONS_PATH)/transformations/float_transformations
+            $(DATA_OPERATIONS_PATH)/transformations/float_transformations
 LIB_UTILS = $(DATA_OPERATIONS_PATH)/lib_utils
 LIB = $(DATA_OPERATIONS_PATH)/lib
 MAIN = main
+BENCHMARK = $(BENCHMARK_PATH)/benchmark
 
 # Lists of modules
 MLI_MODULES = \
@@ -30,33 +33,39 @@ $(OPERATIONS:=.mli) $(UTILS:=.mli) $(TRANSFORM:=.mli) $(LIB_UTILS:=.mli) $(LIB:=
 
 ML_MODULES = \
 $(DATA_LOADING_UTILS:=.ml) $(DATATYPES:=.ml) $(DATAOBJECT:=.ml) $(ROW:=.ml) $(DATAFRAME:=.ml) \
-$(OPERATIONS:=.ml) $(UTILS:=.ml) $(TRANSFORM:=.ml) $(LIB_UTILS:=.ml) $(LIB:=.ml) $(MAIN:=.ml)
+$(OPERATIONS:=.ml) $(UTILS:=.ml) $(TRANSFORM:=.ml) $(LIB_UTILS:=.ml) $(LIB:=.ml) $(MAIN:=.ml) $(BENCHMARK:=.ml)
 
 CMIS = $(MLI_MODULES:.mli=.cmi)
 
 CMOS = \
-	$(DATA_LOADING_PATH)/utils.cmo \
-	$(DATA_LOADING_PATH)/datatypes.cmo \
-	$(DATA_LOADING_PATH)/data_object.cmo \
-	$(DATA_LOADING_PATH)/row.cmo \
-	$(DATA_LOADING_PATH)/dataframe.cmo \
-	$(DATA_OPERATIONS_PATH)/operations/operations.cmo \
-	$(DATA_OPERATIONS_PATH)/utils/int_util.cmo \
-	$(DATA_OPERATIONS_PATH)/utils/float_util.cmo \
-	$(DATA_OPERATIONS_PATH)/transformations/int_transformations.cmo \
-	$(DATA_OPERATIONS_PATH)/transformations/float_transformations.cmo \
-	$(DATA_OPERATIONS_PATH)/lib_utils.cmo \
-	$(DATA_OPERATIONS_PATH)/lib.cmo \
-	$(MAIN).cmo
+    $(DATA_LOADING_PATH)/utils.cmo \
+    $(DATA_LOADING_PATH)/datatypes.cmo \
+    $(DATA_LOADING_PATH)/data_object.cmo \
+    $(DATA_LOADING_PATH)/row.cmo \
+    $(DATA_LOADING_PATH)/dataframe.cmo \
+    $(DATA_OPERATIONS_PATH)/operations/operations.cmo \
+    $(DATA_OPERATIONS_PATH)/utils/int_util.cmo \
+    $(DATA_OPERATIONS_PATH)/utils/float_util.cmo \
+    $(DATA_OPERATIONS_PATH)/transformations/int_transformations.cmo \
+    $(DATA_OPERATIONS_PATH)/transformations/float_transformations.cmo \
+    $(DATA_OPERATIONS_PATH)/lib_utils.cmo \
+    $(DATA_OPERATIONS_PATH)/lib.cmo
+
+MAIN_OBJ = $(MAIN).cmo
+BENCHMARK_OBJ = $(BENCHMARK).cmo
 
 TARGET = main.exe
+BENCHMARK_TARGET = benchmark.exe
 
-.PHONY: all clean run
+.PHONY: all clean run run-benchmark
 
-all: $(TARGET)
+all: $(TARGET) $(BENCHMARK_TARGET)
 
-$(TARGET): $(CMIS) $(CMOS)
-	$(OCAMLC) $(OCAMLFLAGS) -o $@ $(CMOS)
+$(TARGET): $(CMIS) $(CMOS) $(MAIN_OBJ)
+	$(OCAMLC) $(OCAMLFLAGS) -o $@ $(CMOS) $(MAIN_OBJ)
+
+$(BENCHMARK_TARGET): $(CMIS) $(CMOS) $(BENCHMARK_OBJ)
+	$(OCAMLC) $(OCAMLFLAGS) unix.cma -o $@ $(CMOS) $(BENCHMARK_OBJ)
 
 %.cmi: %.mli
 	$(OCAMLC) $(OCAMLFLAGS) -c $<
@@ -67,6 +76,9 @@ $(TARGET): $(CMIS) $(CMOS)
 run: $(TARGET)
 	./$(TARGET)
 
+run-benchmark: $(BENCHMARK_TARGET)
+	./$(BENCHMARK_TARGET)
+
 clean:
-	rm -f *.cm[iox] *.o $(TARGET)
-	find . -type f \( -name "*.cmo" -o -name "*.cmi" -o -name "*.o" -o -name "*.exe" \) -exec rm -f {} +
+	rm -f *.cm[iox] *.o $(TARGET) $(BENCHMARK_TARGET)
+	find . -type f \( -name "*.cmo" -o -name "*.cmi" -o -name "*.o" -o -name "*.exe" -o -name "*.csv" -o -name "*.json" \) -exec rm -f {} +
