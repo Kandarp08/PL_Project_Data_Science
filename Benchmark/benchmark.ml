@@ -100,4 +100,11 @@ let () =
 
   let f10 () =
     let _ = Lib.groupByAggregate "category" [("value", Lib.mean); ("nullable", Lib.sum)] df in () in
-  Benchmark.measure f10 "GroupBy-Agg"
+  Benchmark.measure f10 "GroupBy-Agg";
+
+  let f11 () = 
+    let _ = Lib.imputena "nullable" df in
+    let _ = Lib.filter (function
+      | FLOAT_DATA v -> v > 50.0
+      | _ -> false) "value" df in () in
+  Benchmark.measure f11 "Clean+Filter"

@@ -61,6 +61,25 @@ def create_dataset(rows=100000):
 
     return df
 
+def clean_and_filter(df):
+    df["nullable"] = df["nullable"].fillna(df["nullable"].mean())
+    return df[df["value"] > 50]
+
+def normalize_and_sum(df):
+    df["value"] = (df["value"] - df["value"].mean()) / df["value"].std()
+    return df["value"].sum()
+
+def group_and_aggregate(df):
+    return df.groupby("category")["value"].mean()
+
+def complex_pipeline(df):
+    df["nullable"] = df["nullable"].fillna(df["nullable"].median())
+    df = df[df["value"] > 25]
+    df["value"] = (df["value"] - df["value"].min()) / (df["value"].max() - df["value"].min())
+    return df.groupby("category")["value"].sum()
+
+
+
 # --- Run Benchmarks ---
 if __name__ == "__main__":
     df = create_dataset()
@@ -75,3 +94,8 @@ if __name__ == "__main__":
     benchmark("Fill NA", fillna, df, "nullable", 0)
     benchmark("iLoc", iloc, df, 1345, 5431)
     benchmark("GroupBy-Agg", group_by_aggregate, df, "category", {"value": "mean", "nullable": "sum"})
+
+    benchmark("Clean+Filter", clean_and_filter, df)
+    benchmark("Normalize+Sum", normalize_and_sum, df)
+    benchmark("Group+Agg", group_and_aggregate, df)
+    benchmark("Complex Pipeline", complex_pipeline, df)
