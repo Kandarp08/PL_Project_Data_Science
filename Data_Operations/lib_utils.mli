@@ -17,6 +17,9 @@ type dataframeLoc = {
 
 module type LIB_UTILS = 
 sig
+    (* Updates the value at a given postion in the list *)
+    val update_pos : 'a list -> 'a -> int -> int -> 'a list
+
     (* Given a dataframe, returns a new dataframe in which values of a given column are replaced by new ones *)
     val convert : int -> data_object Seq.t -> data_object Seq.t -> Row.t Seq.t -> Row.t Seq.node
     

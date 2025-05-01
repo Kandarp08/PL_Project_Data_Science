@@ -86,9 +86,7 @@ struct
                             | Seq.Cons(h, _) -> Data_object.DataObject.get_datatype h in
 
         (* Update the datatype of the column *)
-        let dtypes = Array.of_list df.dtypes in 
-        dtypes.(col_idx) <- new_datatype;
-        let new_dtypes = Array.to_list dtypes in
+        let new_dtypes = Lib_utils.update_pos dtypes new_datatype col_idx 0 in
     
         let new_df = { df with 
                         rows = (fun () -> Lib_utils.convert col_idx mapped_column column df.rows);
@@ -138,14 +136,8 @@ struct
                                 | FLOAT -> Float_transformations.normalize column
                                 | _ -> failwith "Inappropriate data type for normalization" in
 
-        (* New datatype of column *)
-        let new_dtypes = 
-            let dtypes = Array.of_list df.dtypes in
-            
-            match dtypes.(col_idx) with 
-            | FLOAT -> df.dtypes
-            | INT -> (dtypes.(col_idx) <- FLOAT; Array.to_list dtypes)
-            | _ -> failwith "Inappropriate data type for normalization" in
+        (* Update the datatype of the column *)
+        let new_dtypes = Lib_utils.update_pos dtypes FLOAT col_idx 0 in
         
         let new_df = { df with 
                         rows = (fun () -> Lib_utils.convert col_idx transformed_column column df.rows);
@@ -167,14 +159,8 @@ struct
                                 | FLOAT -> Float_transformations.min_max_normalize column
                                 | _ -> failwith "Inappropriate data type for normalization" in
 
-        (* New datatype of column *)
-        let new_dtypes = 
-            let dtypes = Array.of_list df.dtypes in
-            
-            match dtypes.(col_idx) with 
-            | FLOAT -> df.dtypes
-            | INT -> (dtypes.(col_idx) <- FLOAT; Array.to_list dtypes)
-            | _ -> failwith "Inappropriate data type for normalization" in
+        (* Update the datatype of the column *)
+        let new_dtypes = Lib_utils.update_pos dtypes FLOAT col_idx 0 in
         
         let new_df = { df with 
                         rows = (fun () -> Lib_utils.convert col_idx transformed_column column df.rows);

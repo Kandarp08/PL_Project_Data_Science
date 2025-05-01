@@ -18,6 +18,7 @@ type dataframeLoc = {
 
 module type LIB_UTILS = 
 sig
+    val update_pos : 'a list -> 'a -> int -> int -> 'a list
     val convert : int -> data_object Seq.t -> data_object Seq.t -> Row.t Seq.t -> Row.t Seq.node
     val filter_rows : int -> data_object Seq.t -> data_object Seq.t -> Row.t Seq.t -> Row.t Seq.node
     val removeElement_atIndex : int -> 'a list -> 'a list
