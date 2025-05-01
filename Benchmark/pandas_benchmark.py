@@ -46,6 +46,9 @@ def join(df1, df2, on_column):
 def group_by_aggregate(df, group_col, agg_spec):
     df.groupby(group_col).agg(agg_spec).reset_index()
 
+def iloc (df, i, j):
+    df.iloc[i:(j+1)]
+
 def create_dataset(rows=100000):
     df =  pd.DataFrame({
         "id": range(rows),
@@ -70,8 +73,9 @@ if __name__ == "__main__":
     benchmark("MinMax Normalize", min_max_normalize, df, "value")
     benchmark("Impute NA", imputena, df, "nullable")
     benchmark("Fill NA", fillna, df, "nullable", 0)
+    benchmark("iLoc", iloc, df, 1345, 5431)
 
-    df2 = create_dataset(len(df))  # another dataframe for join
+    # df2 = create_dataset(len(df))  # another dataframe for join
 
-    benchmark("Join", join, df, df2, "id")
-    benchmark("GroupBy-Agg", group_by_aggregate, df, "category", {"value": "mean", "nullable": "sum"})
+    # benchmark("Join", join, df, df2, "id")
+    # benchmark("GroupBy-Agg", group_by_aggregate, df, "category", {"value": "mean", "nullable": "sum"})

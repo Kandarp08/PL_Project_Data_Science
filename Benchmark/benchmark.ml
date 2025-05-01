@@ -95,3 +95,7 @@ let () =
   let f8 () = 
     let _ = Lib.fillna "nullable" (FLOAT_DATA 0.) df in () in
   Benchmark.measure f8 "Fill NA";
+
+  let f9 () = 
+    let _ = Lib.iloc 1345 5431 df in () in
+  Benchmark.measure f9 "iLoc";
