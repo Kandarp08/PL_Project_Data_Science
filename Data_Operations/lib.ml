@@ -86,7 +86,7 @@ struct
                             | Seq.Cons(h, _) -> Data_object.DataObject.get_datatype h in
 
         (* Update the datatype of the column *)
-        let new_dtypes = Lib_utils.update_pos dtypes new_datatype col_idx 0 in
+        let new_dtypes = Lib_utils.update_pos df.dtypes new_datatype col_idx 0 in
     
         let new_df = { df with 
                         rows = (fun () -> Lib_utils.convert col_idx mapped_column column df.rows);
@@ -137,7 +137,7 @@ struct
                                 | _ -> failwith "Inappropriate data type for normalization" in
 
         (* Update the datatype of the column *)
-        let new_dtypes = Lib_utils.update_pos dtypes FLOAT col_idx 0 in
+        let new_dtypes = Lib_utils.update_pos df.dtypes FLOAT col_idx 0 in
         
         let new_df = { df with 
                         rows = (fun () -> Lib_utils.convert col_idx transformed_column column df.rows);
@@ -160,7 +160,7 @@ struct
                                 | _ -> failwith "Inappropriate data type for normalization" in
 
         (* Update the datatype of the column *)
-        let new_dtypes = Lib_utils.update_pos dtypes FLOAT col_idx 0 in
+        let new_dtypes = Lib_utils.update_pos df.dtypes FLOAT col_idx 0 in
         
         let new_df = { df with 
                         rows = (fun () -> Lib_utils.convert col_idx transformed_column column df.rows);
