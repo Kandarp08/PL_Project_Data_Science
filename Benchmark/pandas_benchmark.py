@@ -74,8 +74,4 @@ if __name__ == "__main__":
     benchmark("Impute NA", imputena, df, "nullable")
     benchmark("Fill NA", fillna, df, "nullable", 0)
     benchmark("iLoc", iloc, df, 1345, 5431)
-
-    # df2 = create_dataset(len(df))  # another dataframe for join
-
-    # benchmark("Join", join, df, df2, "id")
-    # benchmark("GroupBy-Agg", group_by_aggregate, df, "category", {"value": "mean", "nullable": "sum"})
+    benchmark("GroupBy-Agg", group_by_aggregate, df, "category", {"value": "mean", "nullable": "sum"})

@@ -49,13 +49,11 @@ end
 
 
 let () = 
-  let _ = generate_dataset "test1.csv" in
-  let _ = generate_dataset "test2.csv" in
-  let df = Dataframe.load_from_csv "test1.csv" in
-  let df2 = Dataframe.load_from_csv "test2.csv" in
+  let _ = generate_dataset "test.csv" in
+  let df = Dataframe.load_from_csv "test.csv" in
 
   let f1 () = 
-    let _ = Dataframe.load_from_csv "test1.csv" in () in
+    let _ = Dataframe.load_from_csv "test.csv" in () in
   Benchmark.measure f1 "Load CSV";
 
   let mul_2 = function
@@ -99,3 +97,7 @@ let () =
   let f9 () = 
     let _ = Lib.iloc 1345 5431 df in () in
   Benchmark.measure f9 "iLoc";
+
+  let f10 () =
+    let _ = Lib.groupByAggregate "category" [("value", Lib.mean); ("nullable", Lib.sum)] df in () in
+  Benchmark.measure f10 "GroupBy-Agg"
