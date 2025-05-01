@@ -404,7 +404,7 @@ struct
             | [] -> -1
             | h :: t -> if h = item then i else aux (i + 1) t
         in
-        aux 0 last
+        aux 0 lst
 
     (* Creates a dataframeLoc with row indices based on values in a specified column.
       Creates a hashtable mapping values in the index column to row positions.

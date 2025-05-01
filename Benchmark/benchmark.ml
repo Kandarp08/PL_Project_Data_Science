@@ -107,4 +107,19 @@ let () =
     let _ = Lib.filter (function
       | FLOAT_DATA v -> v > 50.0
       | _ -> false) "value" df in () in
-  Benchmark.measure f11 "Clean+Filter"
+  Benchmark.measure f11 "Clean+Filter";
+
+  let f12 () = 
+    let _ = 
+      let _ = Lib.normalize "value" df in
+      Lib.sum "value" df in () in
+  Benchmark.measure f12 "Normalize+Sum";
+
+  let f13 () = 
+    let _ = Lib.imputena "nullable" df in
+    let _ = Lib.filter (function
+      | FLOAT_DATA v -> v > 25.0
+      | _ -> false) "value" df in
+    let _ = Lib.min_max_normalize "value" df in
+    let _ = Lib.groupByAggregate "category" [("value", Lib.sum)] df in () in
+  Benchmark.measure f13 "Complex Pipeline"

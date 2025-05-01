@@ -97,5 +97,4 @@ if __name__ == "__main__":
 
     benchmark("Clean+Filter", clean_and_filter, df)
     benchmark("Normalize+Sum", normalize_and_sum, df)
-    benchmark("Group+Agg", group_and_aggregate, df)
     benchmark("Complex Pipeline", complex_pipeline, df)
