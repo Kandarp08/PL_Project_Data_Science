@@ -282,6 +282,22 @@ let test_stddev () =
         assert_equal_float 5.78 std 0.01 "Stddev should be close to 5.78"
     | _ -> assert_true false "Expected FLOAT_DATA result"
 
+let test_iloc () = 
+    let df = create_test_df2 () in
+    let result_df = Lib.iloc 0 5 df in
+    let (_, cols1) = Dataframe.shape df in
+    let (rows2, cols2) = Dataframe.shape result_df in
+    assert_equal rows2 6 "Expected 6 rows" &&
+    assert_equal cols2 cols1 "Number of columns should not change"
+
+let test_loc () = 
+    let df = create_test_df2 () in
+    let result_df = Lib.loc "Name" "John Doe" "Emily Wilson" df in
+    let (_, cols1) = Dataframe.shape df in
+    let (rows2, cols2) = Dataframe.shape result_df in
+    assert_equal rows2 4 "Expected 4 rows" &&
+    assert_equal cols2 cols1 "Number of columns should not change"
+
 
 let () = 
     run_test "Load from CSV" test_load_from_csv;
@@ -308,6 +324,8 @@ let () =
     run_test "Length" test_len;
     run_test "Mean" test_mean;
     run_test "StdDev" test_stddev;
+    run_test "iLoc" test_iloc;
+    run_test "Loc" test_loc;
 
 
 (* let main () = 
