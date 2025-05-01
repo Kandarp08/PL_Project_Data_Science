@@ -209,17 +209,18 @@ struct
         new_df
 
     let rec join df1 df2 colName =
-        let l1 = Lib_utils.get_rows_as_list df1 in
-        let l2 = Lib_utils.get_rows_as_list df2 in
+        let l1 = df1.rows in
+        let l2 = df2.rows in
 
-        let rec joinHelper (l1: 'a list) (l2: 'a list) colName = 
-            match (l1, l2) with
-            | ([], _) -> []
-            | (_, []) -> []
-            | (l1_hd::l1_tl, l2_hd::l2_tl) -> 
-            let list_including_emptyLists = (Lib_utils.joinItemWithList l1_hd l2 colName df1 df2) @ (joinHelper l1_tl l2 colName) in
-            List.filter (fun subList -> subList <> []) list_including_emptyLists
-        in
+        let rec joinHelper l1 l2 colName = 
+            match (l1 (), l2 ()) with
+            | (Seq.Nil, _) -> Seq.empty
+            | (_, Seq.Nil) -> Seq.empty
+            | (Seq.Cons(l1_hd, l1_tl), Seq.Cons(l2_hd, l2_tl)) -> 
+                (* Seq.append (Lib_utils.joinItemWithList l1_hd l2 colName df1 df2) (joinHelper l1_tl l2 colName) in *)
+            let list_including_emptyLists = Seq.append (Lib_utils.joinItemWithList l1_hd l2 colName df1 df2) (joinHelper l1_tl l2 colName) in
+            Operations.filter (fun subList -> subList <> []) list_including_emptyLists in
+        
         let finalJoinedList = joinHelper l1 l2 colName in
         
         Lib_utils.convertToDataFrame finalJoinedList df1 df2

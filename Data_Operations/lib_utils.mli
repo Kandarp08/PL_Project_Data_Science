@@ -40,15 +40,15 @@ sig
     
     (**)
     val mergeIntoSingleRecord : data_object list -> data_object list -> string -> Dataframe.t -> Dataframe.t -> data_object list
-    
+
     (**)
     val get_rows_as_list : Dataframe.t -> Row.t list
     
     (**)
-    val joinItemWithList : data_object list -> data_object list list -> string -> Dataframe.t -> Dataframe.t -> data_object list list
+    val joinItemWithList : data_object list -> data_object list Seq.t -> string -> Dataframe.t -> Dataframe.t -> data_object list Seq.t
     
     (**)
-    val convertToDataFrame : Row.t list -> Dataframe.t -> Dataframe.t -> Dataframe.t
+    val convertToDataFrame : Row.t Seq.t -> Dataframe.t -> Dataframe.t -> Dataframe.t
 
     (**)
     val convertRowsToDataframe : Dataframe.t -> Row.t Seq.t -> Dataframe.t

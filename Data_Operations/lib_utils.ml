@@ -27,8 +27,8 @@ sig
     val findValue : string -> 'a list -> Dataframe.t -> 'a
     val mergeIntoSingleRecord : data_object list -> data_object list -> string -> Dataframe.t -> Dataframe.t -> data_object list
     val get_rows_as_list : Dataframe.t -> Row.t list
-    val joinItemWithList : data_object list -> data_object list list -> string -> Dataframe.t -> Dataframe.t -> data_object list list
-    val convertToDataFrame : Row.t list -> Dataframe.t -> Dataframe.t -> Dataframe.t
+    val joinItemWithList : data_object list -> data_object list Seq.t -> string -> Dataframe.t -> Dataframe.t -> data_object list Seq.t
+    val convertToDataFrame : Row.t Seq.t -> Dataframe.t -> Dataframe.t -> Dataframe.t
     val convertRowsToDataframe : Dataframe.t -> Row.t Seq.t -> Dataframe.t
     val convertRowsToDataframeLoc : dataframeLoc -> Row.t Seq.t -> Dataframe.t
     val extract_int : data_object -> int
@@ -163,25 +163,23 @@ struct
         aux [] seq
         
     let rec joinItemWithList item l colName df1 df2 = 
-        match l with 
-        [] -> []
-        | hd :: tl -> (mergeIntoSingleRecord item hd colName df1 df2) :: (joinItemWithList item tl colName df1 df2);;
+
+        match l () with 
+        Seq.Nil -> Seq.empty
+        | Seq.Cons(hd, tl) -> Seq.append (fun () -> Seq.Cons(mergeIntoSingleRecord item hd colName df1 df2, Seq.empty)) (joinItemWithList item tl colName df1 df2)
 
     let convertToDataFrame rows df1 df2  =
-        (* If no rows, return an empty dataframe with combined headers *)
-        if rows = [] then 
+        
+        match rows () with
+        | Seq.Nil -> { 
+                headers = [];
+                dtypes = [];
+                rows = Seq.empty;
+                ncols = 0;
+            }
 
-            let new_df : Dataframe.t = 
-            { 
-            headers = [];
-            dtypes = [];
-            rows = Seq.empty;
-            ncols = 0;
-            } in
+        | _ -> 
 
-            new_df
-
-        else
             (* Create combined headers by removing duplicates of the join column *)
             let combined_headers = 
             let row1_headers = df1.headers in
@@ -210,10 +208,10 @@ struct
             (* Return the new dataframe *)
             let new_df : Dataframe.t = 
             {
-            headers = combined_headers;
-            dtypes = combined_dtypes;
-            rows = List.to_seq rows;
-            ncols = List.length combined_headers;
+                headers = combined_headers;
+                dtypes = combined_dtypes;
+                rows = rows;
+                ncols = List.length combined_headers;
             } in
 
             new_df
