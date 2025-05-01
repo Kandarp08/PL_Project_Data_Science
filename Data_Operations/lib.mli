@@ -42,7 +42,7 @@ sig
     (* Replace NULL values of a given column with the given value *)
     val fillna : string -> data_object -> Dataframe.t -> Dataframe.t
     
-    (**)
+    (* Combines two dataframes based on a related column *)
     val join : Dataframe.t -> Dataframe.t -> string -> Dataframe.t
     
     (* Sum of a given integer/float column of the dataframe *)
