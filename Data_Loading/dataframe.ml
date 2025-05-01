@@ -29,7 +29,7 @@ module Dataframe = struct
 
   let size df = df.ncols * no_of_rows df
 
-  let shape df = (df.ncols, no_of_rows df)
+  let shape df = (no_of_rows df, df.ncols)
 
   let load_from_file sep filepath = 
     let file = open_in filepath in
